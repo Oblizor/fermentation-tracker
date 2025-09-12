@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winery Fermentation Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Fermentation Log</h1>
+    </header>
+    <main>
+        <section class="tank-info">
+            <h2>Tank Details</h2>
+            <div class="info-inputs">
+                <label for="tankId">Tank ID:</label>
+                <input type="text" id="tankId" value="Tank-01">
+                
+                <label for="wineType">Wine Type:</label>
+                <select id="wineType">
+                    <option value="white">White</option>
+                    <option value="rose">Rosé</option>
+                    <option value="red">Red</option>
+                </select>
+
+                <button id="loadTankData">Load Tank Data</button>
+            </div>
+        </section>
+
+        <section class="data-entry">
+            <h2>New Reading / Addition</h2>
+            <form id="readingForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="timestamp">Date & Time</label>
+                        <input type="datetime-local" id="timestamp" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°C)</label>
+                        <input type="number" id="temperature" step="0.1" placeholder="e.g., 15.5">
+                    </div>
+                     <div class="form-group">
+                        <label for="sugar">Sugar (Baumé)</label>
+                        <input type="number" id="sugar" step="0.1" placeholder="e.g., 12.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="ph">pH</label>
+                        <input type="number" id="ph" step="0.01" placeholder="e.g., 3.25">
+                    </div>
+                    <div class="form-group">
+                        <label for="ta">Total Acidity (g/L)</label>
+                        <input type="number" id="ta" step="0.1" placeholder="e.g., 6.8">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="notes">Additions & Notes</label>
+                        <textarea id="notes" rows="3" placeholder="e.g., Added 50g of Nutrient X"></textarea>
+                    </div>
+                </div>
+                <button type="submit">Save Reading</button>
+            </form>
+        </section>
+
+        <section class="log-display">
+            <h2>Log History for <span id="logTankId">...</span></h2>
+            <table id="logTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Temp (°C)</th>
+                        <th>Sugar (Baumé)</th>
+                        <th>pH</th>
+                        <th>TA (g/L)</th>
+                        <th>Notes / Additions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
