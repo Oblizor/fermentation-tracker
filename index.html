@@ -80,6 +80,57 @@
             </form>
         </section>
 
+        <section class="calculator">
+            <h2>Additive Calculator</h2>
+            <p>Enter the batch volume and dosage rates. For g/hL rates, amount&nbsp;=&nbsp;volume&nbsp;×&nbsp;rate&nbsp;/&nbsp;100. For SO₂ (KMS) in mg/L, amount&nbsp;=&nbsp;volume&nbsp;×&nbsp;rate&nbsp;/&nbsp;1000.</p>
+            <div class="form-group">
+                <label for="calcVolume">Volume (L)</label>
+                <input type="number" id="calcVolume" step="0.1" placeholder="e.g., 1000">
+            </div>
+            <table class="calc-table">
+                <thead>
+                    <tr>
+                        <th>Additive</th>
+                        <th>Dosage Rate</th>
+                        <th>Amount (g)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nutrients (g/hL)</td>
+                        <td><input type="number" id="nutrientRate" step="0.01" placeholder="e.g., 20"></td>
+                        <td><span id="nutrientAmount"></span></td>
+                        <td><button type="button" id="nutrientSave">Save to Log</button></td>
+                    </tr>
+                    <tr>
+                        <td>Enzymes (g/hL)</td>
+                        <td><input type="number" id="enzymeRate" step="0.01" placeholder="e.g., 2"></td>
+                        <td><span id="enzymeAmount"></span></td>
+                        <td><button type="button" id="enzymeSave">Save to Log</button></td>
+                    </tr>
+                    <tr>
+                        <td>SO₂ (KMS) (mg/L)</td>
+                        <td><input type="number" id="kmsRate" step="1" placeholder="e.g., 50"></td>
+                        <td><span id="kmsAmount"></span></td>
+                        <td><button type="button" id="kmsSave">Save to Log</button></td>
+                    </tr>
+                    <tr>
+                        <td>Bentonite (g/hL)</td>
+                        <td><input type="number" id="bentoniteRate" step="0.01" placeholder="e.g., 10"></td>
+                        <td><span id="bentoniteAmount"></span></td>
+                        <td><button type="button" id="bentoniteSave">Save to Log</button></td>
+                    </tr>
+                    <tr>
+                        <td>Tannins (g/hL)</td>
+                        <td><input type="number" id="tanninRate" step="0.01" placeholder="e.g., 5"></td>
+                        <td><span id="tanninAmount"></span></td>
+                        <td><button type="button" id="tanninSave">Save to Log</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
         <section class="log-display">
             <h2>Log History for <span id="logTankId">...</span></h2>
             <table id="logTable">
