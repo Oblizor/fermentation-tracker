@@ -118,8 +118,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 latestVolume = latest.volume;
             }
         }
-        const volumeDisplay = latestVolume !== null ? `${latestVolume} / ${selectedTank.capacity} L` : `N/A / ${selectedTank.capacity} L`;
-        tankDetailsP.textContent = `Volume: ${volumeDisplay}. Details: ${selectedTank.description}`;
+        const volumeDisplay = latestVolume !== null
+            ? `${latestVolume} / ${selectedTank.capacity} L`
+            : `N/A / ${selectedTank.capacity} L`;
+        const variety = selectedTank.grapeVariety ? selectedTank.grapeVariety : 'N/A';
+        tankDetailsP.textContent = `Volume: ${volumeDisplay}. Variety: ${variety}. Details: ${selectedTank.description}`;
+
+        // Prefill volume-related inputs with the latest volume
+        if (latestVolume !== null) {
+            const volumeInput = document.getElementById('volume');
+            if (volumeInput && !volumeInput.value) {
+                volumeInput.value = latestVolume;
+            }
+            const calcVolumeEl = document.getElementById('calcVolume');
+            if (calcVolumeEl) {
+                calcVolumeEl.value = latestVolume;
+                calcVolumeEl.dispatchEvent(new Event('input'));
+            }
+            const phVolumeEl = document.getElementById('phVolume');
+            if (phVolumeEl && !phVolumeEl.value) {
+                phVolumeEl.value = latestVolume;
+            }
+        }
     }
 
     // Render the overview table with the latest reading for each tank
@@ -192,6 +212,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const bentoniteUnitBtn = document.getElementById('bentoniteUnitBtn');
         const bentoniteUnits = ['g/L', 'g/hL', 'mg/L'];
         let bentoniteUnitIndex = 0;
+        // Ensure the button reflects the default unit
+        bentoniteUnitBtn.textContent = bentoniteUnits[bentoniteUnitIndex];
         const calcBentonite = (vol, rate) => {
             const unit = bentoniteUnits[bentoniteUnitIndex];
             if (unit === 'g/L') return vol * rate;
