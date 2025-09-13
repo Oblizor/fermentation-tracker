@@ -140,21 +140,48 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const newReading = {
-            timestamp: document.getElementById('timestamp').value,
-            temperature: document.getElementById('temperature').value,
-            sugar: document.getElementById('sugar').value,
-            ph: document.getElementById('ph').value,
-            ta: document.getElementById('ta').value,
-            notes: document.getElementById('notes').value
-        };
+        const timestamp = document.getElementById('timestamp').value.trim();
+        const notes = document.getElementById('notes').value;
+
+        const tempVal = document.getElementById('temperature').value.trim();
+        const sugarVal = document.getElementById('sugar').value.trim();
+        const phVal = document.getElementById('ph').value.trim();
+        const taVal = document.getElementById('ta').value.trim();
+
+        const temperature = tempVal === '' ? null : parseFloat(tempVal);
+        const sugar = sugarVal === '' ? null : parseFloat(sugarVal);
+        const ph = phVal === '' ? null : parseFloat(phVal);
+        const ta = taVal === '' ? null : parseFloat(taVal);
+
+        if (tempVal !== '' && !Number.isFinite(temperature)) {
+            alert('Please enter a valid temperature.');
+            return;
+        }
+        if (sugarVal !== '' && !Number.isFinite(sugar)) {
+            alert('Please enter a valid sugar reading.');
+            return;
+        }
+        if (phVal !== '' && !Number.isFinite(ph)) {
+            alert('Please enter a valid pH value.');
+            return;
+        }
+        if (taVal !== '' && !Number.isFinite(ta)) {
+            alert('Please enter a valid total acidity.');
+            return;
+        }
+
+        const newReading = { timestamp, notes };
+        if (temperature !== null) newReading.temperature = temperature;
+        if (sugar !== null) newReading.sugar = sugar;
+        if (ph !== null) newReading.ph = ph;
+        if (ta !== null) newReading.ta = ta;
 
         const tankData = getTankData(currentTankId);
         tankData.push(newReading);
         tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         saveTankData(currentTankId, tankData);
-        
-        renderLog(); 
+
+        renderLog();
         readingForm.reset();
     });
 
