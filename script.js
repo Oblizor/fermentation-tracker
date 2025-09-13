@@ -11,9 +11,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const exportBtn = document.getElementById('exportBtn');
     const importBtn = document.getElementById('importBtn');
     const importFileInput = document.getElementById('importFile');
-    
+    const submitBtn = readingForm.querySelector('button[type="submit"]');
+
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
+    let editingIndex = null; // Track index of reading being edited
 
     // ---- NEW: Function to populate the dropdown menu ----
     const populateTankSelector = () => {
@@ -36,8 +38,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             tankDetailsP.textContent = '';
         }
-        
+
         renderLog(); // Load and display the log for the selected tank
+        readingForm.reset();
+        editingIndex = null;
+        submitBtn.textContent = 'Save Reading';
     };
 
     // Function to render the log entries in the table
