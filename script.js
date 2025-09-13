@@ -152,16 +152,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle clicks on the "Delete" buttons
     logTableBody.addEventListener('click', (event) => {
-        if (event.target.classList.contains('delete-btn')) {
-            const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
+        if (!event.target.classList.contains('delete-btn')) return;
 
-            if (confirm('Are you sure you want to delete this entry?')) {
-                const tankData = getTankData(currentTankId);
-                tankData.splice(indexToDelete, 1);
-                saveTankData(currentTankId, tankData);
-                renderLog();
-            }
-        }
+        const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
+        if (!confirm('Are you sure you want to delete this entry?')) return;
+
+        const tankData = getTankData(currentTankId);
+        tankData.splice(indexToDelete, 1);
+        saveTankData(currentTankId, tankData);
+        renderLog();
     });
 
       exportBtn.addEventListener('click', () => {
