@@ -2,246 +2,295 @@
     {
         "id": "R1",
         "capacity": 3528,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R2",
         "capacity": 3911,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R3",
         "capacity": 3528,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R4",
         "capacity": 3528,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R5",
         "capacity": 3528,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R6",
         "capacity": 3911,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R7",
         "capacity": 8133,
-        "description": "Vinificator roșu, manta încălzire + piston + pompă remontaj"
+        "description": "Vinificator roșu, manta încălzire + piston + pompă remontaj",
+        "grapeVariety": ""
     },
     {
         "id": "R8",
         "capacity": 8133,
-        "description": "Vinificator roșu, manta încălzire + piston + pompă remontaj"
+        "description": "Vinificator roșu, manta încălzire + piston + pompă remontaj",
+        "grapeVariety": ""
     },
     {
         "id": "R9",
         "capacity": 2966,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R10",
         "capacity": 2181,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R11",
         "capacity": 2017,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R12",
         "capacity": 1684,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R13",
         "capacity": 2631,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R14",
         "capacity": 2609,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R15",
         "capacity": 3424,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R16",
         "capacity": 3424,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R17",
         "capacity": 3435,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R18",
         "capacity": 3436,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R34",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R35",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R36",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R37",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R39",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R40",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R41",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R43",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R44",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R45",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R46",
         "capacity": 5295,
-        "description": "Inox, manta"
+        "description": "Inox, manta",
+        "grapeVariety": ""
     },
     {
         "id": "R19",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R20",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R21",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R22",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R23",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R24",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R25",
         "capacity": 4216,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R26",
         "capacity": 5106,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R27",
         "capacity": 1587,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R28",
         "capacity": 1584,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R29",
         "capacity": 5243,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R30",
         "capacity": 3435,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R31",
         "capacity": 3422,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R32",
         "capacity": 1054,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R33",
         "capacity": 1000,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R38",
         "capacity": 3250,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R42",
         "capacity": 1180,
-        "description": "Inox, fără manta"
+        "description": "Inox, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R47",
         "capacity": 4900,
-        "description": "Inox, afară, fără manta"
+        "description": "Inox, afară, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R48",
         "capacity": 10200,
-        "description": "Inox, afară, fără manta"
+        "description": "Inox, afară, fără manta",
+        "grapeVariety": ""
     },
     {
         "id": "R49",
         "capacity": 10200,
-        "description": "Inox, afară, fără manta"
+        "description": "Inox, afară, fără manta",
+        "grapeVariety": ""
     }
 ]

@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overviewSection = document.querySelector('.overview');
     const sugarInput = document.getElementById('sugar');
     const sugarGLInput = document.getElementById('sugarGL');
+    const varietyInput = document.getElementById('grapeVarietyInput');
 
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
@@ -39,12 +40,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ---- NEW: Function to handle when a new tank is selected ----
     const handleTankSelection = () => {
         currentTankId = tankSelect.value;
+        const selectedTank = tanks.find(t => t.id === currentTankId);
+        if (selectedTank) {
+            const storedVariety = localStorage.getItem(currentTankId + '_variety');
+            selectedTank.grapeVariety = storedVariety || selectedTank.grapeVariety || '';
+            if (varietyInput) {
+                varietyInput.value = selectedTank.grapeVariety;
+            }
+        } else if (varietyInput) {
+            varietyInput.value = '';
+        }
         renderLog(); // Load and display the log for the selected tank
         readingForm.reset();
         sugarGLInput.value = '';
         editingIndex = null;
         submitBtn.textContent = 'Save Reading';
     };
+
+    if (varietyInput) {
+        varietyInput.addEventListener('input', () => {
+            if (!currentTankId) return;
+            const selectedTank = tanks.find(t => t.id === currentTankId);
+            if (!selectedTank) return;
+            const value = varietyInput.value.trim();
+            selectedTank.grapeVariety = value;
+            if (value) {
+                localStorage.setItem(currentTankId + '_variety', value);
+            } else {
+                localStorage.removeItem(currentTankId + '_variety');
+            }
+            updateTankDetails();
+        });
+    }
 
     const updateSugarConversion = () => {
         const baume = parseFloat(sugarInput.value);
@@ -118,8 +145,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 latestVolume = latest.volume;
             }
         }
-        const volumeDisplay = latestVolume !== null ? `${latestVolume} / ${selectedTank.capacity} L` : `N/A / ${selectedTank.capacity} L`;
-        tankDetailsP.textContent = `Volume: ${volumeDisplay}. Details: ${selectedTank.description}`;
+        const volumeDisplay = latestVolume !== null
+            ? `${latestVolume} / ${selectedTank.capacity} L`
+            : `N/A / ${selectedTank.capacity} L`;
+        const variety = selectedTank.grapeVariety ? selectedTank.grapeVariety : 'N/A';
+        tankDetailsP.textContent = `Volume: ${volumeDisplay}. Variety: ${variety}. Details: ${selectedTank.description}`;
+
+        // Prefill volume-related inputs with the latest volume
+        if (latestVolume !== null) {
+            const volumeInput = document.getElementById('volume');
+            if (volumeInput && !volumeInput.value) {
+                volumeInput.value = latestVolume;
+            }
+            const calcVolumeEl = document.getElementById('calcVolume');
+            if (calcVolumeEl) {
+                calcVolumeEl.value = latestVolume;
+                calcVolumeEl.dispatchEvent(new Event('input'));
+            }
+            const phVolumeEl = document.getElementById('phVolume');
+            if (phVolumeEl && !phVolumeEl.value) {
+                phVolumeEl.value = latestVolume;
+            }
+        }
     }
 
     // Render the overview table with the latest reading for each tank
@@ -192,6 +239,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const bentoniteUnitBtn = document.getElementById('bentoniteUnitBtn');
         const bentoniteUnits = ['g/L', 'g/hL', 'mg/L'];
         let bentoniteUnitIndex = 0;
+        // Ensure the button reflects the default unit
+        bentoniteUnitBtn.textContent = bentoniteUnits[bentoniteUnitIndex];
         const calcBentonite = (vol, rate) => {
             const unit = bentoniteUnits[bentoniteUnitIndex];
             if (unit === 'g/L') return vol * rate;
