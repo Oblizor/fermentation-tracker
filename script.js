@@ -165,8 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (confirm('Are you sure you want to delete this entry?')) {
                 const tankData = getTankData(currentTankId);
-                const originalIndex = tankData.length - 1 - indexToDelete;
-                tankData.splice(originalIndex, 1);
+                tankData.splice(indexToDelete, 1);
                 saveTankData(currentTankId, tankData);
                 renderLog();
             }
