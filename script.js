@@ -163,6 +163,91 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Array.from(map.values()).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     };
 
+    // --- Additive Calculator ---
+    const calcVolumeInput = document.getElementById('calcVolume');
+    if (calcVolumeInput) {
+        const calcFields = [
+            {
+                name: 'Nutrients',
+                rateInput: document.getElementById('nutrientRate'),
+                resultSpan: document.getElementById('nutrientAmount'),
+                button: document.getElementById('nutrientSave'),
+                unit: 'g',
+                calc: (vol, rate) => vol * rate / 100
+            },
+            {
+                name: 'Enzymes',
+                rateInput: document.getElementById('enzymeRate'),
+                resultSpan: document.getElementById('enzymeAmount'),
+                button: document.getElementById('enzymeSave'),
+                unit: 'g',
+                calc: (vol, rate) => vol * rate / 100
+            },
+            {
+                name: 'SO₂ (KMS)',
+                rateInput: document.getElementById('kmsRate'),
+                resultSpan: document.getElementById('kmsAmount'),
+                button: document.getElementById('kmsSave'),
+                unit: 'g',
+                calc: (vol, rate) => vol * rate / 1000
+            },
+            {
+                name: 'Bentonite',
+                rateInput: document.getElementById('bentoniteRate'),
+                resultSpan: document.getElementById('bentoniteAmount'),
+                button: document.getElementById('bentoniteSave'),
+                unit: 'g',
+                calc: (vol, rate) => vol * rate / 100
+            },
+            {
+                name: 'Tannins',
+                rateInput: document.getElementById('tanninRate'),
+                resultSpan: document.getElementById('tanninAmount'),
+                button: document.getElementById('tanninSave'),
+                unit: 'g',
+                calc: (vol, rate) => vol * rate / 100
+            }
+        ];
+
+        const updateCalculator = () => {
+            const volume = parseFloat(calcVolumeInput.value);
+            calcFields.forEach(field => {
+                const rate = parseFloat(field.rateInput.value);
+                if (!Number.isNaN(volume) && !Number.isNaN(rate)) {
+                    const amount = field.calc(volume, rate);
+                    field.latestAmount = amount;
+                    field.resultSpan.textContent = amount.toFixed(2);
+                } else {
+                    field.latestAmount = null;
+                    field.resultSpan.textContent = '';
+                }
+            });
+        };
+
+        calcVolumeInput.addEventListener('input', updateCalculator);
+        calcFields.forEach(field => {
+            field.rateInput.addEventListener('input', updateCalculator);
+            field.button.addEventListener('click', () => {
+                if (!currentTankId) {
+                    alert('Please select a tank from the dropdown.');
+                    return;
+                }
+                if (field.latestAmount == null) {
+                    alert('Please enter volume and dosage rate first.');
+                    return;
+                }
+                const tankData = getTankData(currentTankId);
+                tankData.push({
+                    timestamp: new Date().toISOString(),
+                    notes: `${field.name}: ${field.latestAmount.toFixed(2)} ${field.unit}`
+                });
+                saveTankData(currentTankId, tankData);
+                renderLog();
+                renderOverview();
+            });
+        });
+    }
+
     // --- Event Listeners ---
 
     // NEW: Listen for changes on the dropdown menu
