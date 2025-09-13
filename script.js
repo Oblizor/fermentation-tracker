@@ -84,20 +84,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const parseCSV = (text) => {
-        const [headerLine, ...lines] = text.trim().split(/\r?\n/);
-        const headers = headerLine.split(',');
-        return lines.filter(l => l.trim()).map(line => {
-            const values = line.split(',');
-            const entry = {};
-            headers.forEach((h, i) => {
-                let value = values[i];
-                if (value) {
-                    value = value.replace(/^"|"$/g, '');
+        const rows = [];
+        let row = [];
+        let field = '';
+        let insideQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+
+            if (insideQuotes) {
+                if (char === '"') {
+                    if (text[i + 1] === '"') {
+                        field += '"';
+                        i++;
+                    } else {
+                        insideQuotes = false;
+                    }
+                } else {
+                    field += char;
                 }
-                entry[h] = value;
+            } else {
+                if (char === '"') {
+                    insideQuotes = true;
+                } else if (char === ',') {
+                    row.push(field);
+                    field = '';
+                } else if (char === '\n' || char === '\r') {
+                    if (char === '\r' && text[i + 1] === '\n') i++;
+                    row.push(field);
+                    rows.push(row);
+                    row = [];
+                    field = '';
+                } else {
+                    field += char;
+                }
+            }
+        }
+
+        if (field !== '' || row.length) {
+            row.push(field);
+            rows.push(row);
+        }
+
+        if (!rows.length) return [];
+        const headers = rows.shift().map(h => h.trim());
+
+        return rows
+            .filter(r => r.length && r.some(val => val.trim() !== ''))
+            .map(r => {
+                const entry = {};
+                headers.forEach((h, i) => {
+                    let value = r[i] ?? '';
+                    value = value.trim();
+                    if (value !== '') {
+                        try {
+                            value = JSON.parse(value);
+                        } catch {
+                            // Keep as string if JSON.parse fails
+                        }
+                    }
+                    entry[h] = value;
+                });
+                return entry;
             });
-            return entry;
-        });
     };
 
     // --- Event Listeners ---
@@ -204,27 +253,41 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (!file) return;
           const reader = new FileReader();
           reader.onload = (e) => {
-              try {
-                  let imported;
-                  if (file.name.toLowerCase().endsWith('.csv')) {
-                      imported = parseCSV(e.target.result);
-                  } else {
-                      imported = JSON.parse(e.target.result);
-                  }
-                  if (!Array.isArray(imported)) throw new Error('Invalid file format');
-                  const tankData = getTankData(currentTankId);
-                  const merged = tankData.concat(imported);
-                  merged.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                  saveTankData(currentTankId, merged);
-                  renderLog();
-                  alert('Import successful!');
-              } catch (err) {
-                  alert('Failed to import file: ' + err.message);
-              }
-          };
-          reader.readAsText(file);
-          event.target.value = '';
-      });
+                try {
+                    let imported;
+                    if (file.name.toLowerCase().endsWith('.csv')) {
+                        imported = parseCSV(e.target.result);
+                    } else {
+                        imported = JSON.parse(e.target.result);
+                    }
+                    if (!Array.isArray(imported)) throw new Error('Invalid file format');
+
+                    imported = imported.map(entry => {
+                        ['temperature', 'sugar', 'ph', 'ta'].forEach(key => {
+                            const val = entry[key];
+                            if (val !== undefined && val !== '') {
+                                const num = Number(val);
+                                if (!Number.isNaN(num)) {
+                                    entry[key] = num;
+                                }
+                            }
+                        });
+                        return entry;
+                    });
+
+                    const tankData = getTankData(currentTankId);
+                    const merged = tankData.concat(imported);
+                    merged.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    saveTankData(currentTankId, merged);
+                    renderLog();
+                    alert('Import successful!');
+                } catch (err) {
+                    alert('Failed to import file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        });
     
     // --- Initial Setup ---
     try {
