@@ -105,6 +105,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
+    // Helper to merge tank readings using timestamp as a unique key.
+    // Existing entries with the same timestamp are overwritten by the
+    // imported ones, ensuring a single record per timestamp.
+    const mergeReadings = (existing, imported) => {
+        const map = new Map();
+        existing.forEach(entry => map.set(entry.timestamp, entry));
+        imported.forEach(entry => map.set(entry.timestamp, entry));
+        // Convert the map back to an array sorted by timestamp (newest first)
+        return Array.from(map.values()).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    };
+
     // --- Event Listeners ---
 
     // NEW: Listen for changes on the dropdown menu
@@ -218,7 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   }
                   if (!Array.isArray(imported)) throw new Error('Invalid file format');
 
-                  const tankData = getTankData(currentTankId);
+                  const existingData = getTankData(currentTankId);
                   const numericFields = ['temperature', 'sugar', 'ph', 'ta'];
 
                   imported.forEach(entry => {
@@ -230,11 +241,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                               }
                           }
                       });
-                      tankData.push(entry);
                   });
 
-                  tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                  saveTankData(currentTankId, tankData);
+                  // Merge while deduplicating by timestamp. Imported entries
+                  // overwrite existing ones that share the same timestamp.
+                  const merged = mergeReadings(existingData, imported);
+                  saveTankData(currentTankId, merged);
                   renderLog();
                   alert('Import successful!');
               } catch (err) {
