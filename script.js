@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const importCsvBtn = document.getElementById('importCsvBtn');
     const importFileInput = document.getElementById('importFile');
     const submitBtn = readingForm.querySelector('button[type="submit"]');
+    const overviewTableBody = document.getElementById('overviewTableBody');
 
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
@@ -81,10 +82,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = localStorage.getItem(tankId);
         return data ? JSON.parse(data) : [];
     };
-    
+
     // Function to save data for a specific tank to localStorage
     const saveTankData = (tankId, data) => {
         localStorage.setItem(tankId, JSON.stringify(data));
+    };
+
+    // Render the overview table with the latest reading for each tank
+    const renderOverview = () => {
+        if (!overviewTableBody) return;
+        overviewTableBody.innerHTML = '';
+        tanks.forEach(tank => {
+            const tankData = getTankData(tank.id);
+            let latest = null;
+            if (tankData.length > 0) {
+                latest = tankData.reduce((a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b);
+            }
+            const row = document.createElement('tr');
+            const formattedTimestamp = latest ? new Date(latest.timestamp).toLocaleString() : '';
+            row.innerHTML = `
+                <td>${tank.id}</td>
+                <td>${formattedTimestamp}</td>
+                <td>${latest?.temperature ?? ''}</td>
+                <td>${latest?.sugar ?? ''}</td>
+                <td>${latest?.ph ?? ''}</td>
+                <td>${latest?.ta ?? ''}</td>
+                <td><button class="view-log-btn" data-tank="${tank.id}">View Log</button></td>
+            `;
+            overviewTableBody.appendChild(row);
+        });
     };
 
     const toCSV = (data) => {
@@ -125,10 +151,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Event Listeners ---
 
     // NEW: Listen for changes on the dropdown menu
-    tankSelect.addEventListener('change', handleTankSelection);
+      tankSelect.addEventListener('change', handleTankSelection);
 
-    // Handle the form submission for a new reading
-    readingForm.addEventListener('submit', (event) => {
+      // Handle the form submission for a new reading
+      readingForm.addEventListener('submit', (event) => {
         event.preventDefault(); 
 
         if (!currentTankId) {
@@ -160,13 +186,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             tankData.push(newReading);
         }
         tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        saveTankData(currentTankId, tankData);
+          saveTankData(currentTankId, tankData);
 
-        renderLog();
-        readingForm.reset();
-        editingIndex = null;
-        submitBtn.textContent = 'Save Reading';
-    });
+          renderLog();
+          renderOverview();
+          readingForm.reset();
+          editingIndex = null;
+          submitBtn.textContent = 'Save Reading';
+      });
 
     // Handle clicks on the Edit and Delete buttons
     logTableBody.addEventListener('click', (event) => {
@@ -189,9 +216,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tankData.splice(index, 1);
                 saveTankData(currentTankId, tankData);
                 renderLog();
+                renderOverview();
             }
         }
     });
+
+      overviewTableBody.addEventListener('click', (event) => {
+          if (event.target.classList.contains('view-log-btn')) {
+              const tankId = event.target.getAttribute('data-tank');
+              tankSelect.value = tankId;
+              handleTankSelection();
+              document.querySelector('.log-display').scrollIntoView({ behavior: 'smooth' });
+          }
+      });
 
       const handleExport = (format) => {
           if (!currentTankId) {
@@ -276,12 +313,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                   // Merge while deduplicating by timestamp. Imported entries
                   // overwrite existing ones that share the same timestamp.
                   const merged = mergeReadings(existingData, imported);
-                  saveTankData(currentTankId, merged);
-                  renderLog();
-                  alert('Import successful!');
-              } catch (err) {
-                  alert('Failed to import file: ' + err.message);
-              }
+                    saveTankData(currentTankId, merged);
+                    renderLog();
+                    renderOverview();
+                    alert('Import successful!');
+                } catch (err) {
+                    alert('Failed to import file: ' + err.message);
+                }
           };
           reader.readAsText(file);
           event.target.value = '';
@@ -294,6 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tanks = await response.json();
         populateTankSelector();
         handleTankSelection();
+        renderOverview();
     } catch (error) {
         console.error('Failed to load tanks:', error);
     }
