@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${formattedTimestamp}</td>
                 <td>${reading.temperature || ''}</td>
                 <td>${reading.sugar || ''}</td>
+                <td>${reading.sg || ''}</td>
                 <td>${reading.ph || ''}</td>
                 <td>${reading.ta || ''}</td>
                 <td>${reading.notes || ''}</td>
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${formattedTimestamp}</td>
                 <td>${latest?.temperature ?? ''}</td>
                 <td>${latest?.sugar ?? ''}</td>
+                <td>${latest?.sg ?? ''}</td>
                 <td>${latest?.ph ?? ''}</td>
                 <td>${latest?.ta ?? ''}</td>
                 <td><button class="view-log-btn" data-tank="${tank.id}">View Log</button></td>
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const toCSV = (data) => {
         if (!data.length) return '';
-        const headers = Object.keys(data[0]);
+        const headers = Array.from(new Set(data.flatMap(d => Object.keys(d))));
         const rows = data.map(row => headers.map(h => JSON.stringify(row[h] ?? '')).join(','));
         return [headers.join(','), ...rows].join('\n');
     };
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const notes = document.getElementById('notes').value;
 
         const newReading = { timestamp, notes };
-        const numericFields = ['temperature', 'sugar', 'ph', 'ta'];
+        const numericFields = ['temperature', 'sugar', 'sg', 'ph', 'ta'];
 
         for (const field of numericFields) {
             const value = document.getElementById(field).value.trim();
@@ -205,6 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('timestamp').value = entry.timestamp;
             document.getElementById('temperature').value = entry.temperature ?? '';
             document.getElementById('sugar').value = entry.sugar ?? '';
+            document.getElementById('sg').value = entry.sg ?? '';
             document.getElementById('ph').value = entry.ph ?? '';
             document.getElementById('ta').value = entry.ta ?? '';
             document.getElementById('notes').value = entry.notes ?? '';
@@ -297,7 +300,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   if (!Array.isArray(imported)) throw new Error('Invalid file format');
 
                   const existingData = getTankData(currentTankId);
-                  const numericFields = ['temperature', 'sugar', 'ph', 'ta'];
+                  const numericFields = ['temperature', 'sugar', 'sg', 'ph', 'ta'];
 
                   imported.forEach(entry => {
                       numericFields.forEach(field => {
