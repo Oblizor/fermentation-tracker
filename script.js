@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const importFileInput = document.getElementById('importFile');
     const submitBtn = readingForm.querySelector('button[type="submit"]');
     const overviewTableBody = document.getElementById('overviewTableBody');
+    const toggleOverviewBtn = document.getElementById('toggleOverviewBtn');
+    const overviewSection = document.querySelector('.overview');
 
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
@@ -108,6 +110,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         overviewTableBody.innerHTML = '';
         tanks.forEach(tank => {
             const tankData = getTankData(tank.id);
+            if (tankData.length === 0) {
+                return; // Skip tanks with no readings
+            }
             let latest = null;
             if (tankData.length > 0) {
                 latest = tankData.reduce((a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b);
@@ -427,7 +432,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           event.target.value = '';
           importFormat = null;
       });
-    
+
+      toggleOverviewBtn.addEventListener('click', () => {
+          const isHidden = overviewSection.classList.toggle('hidden');
+          toggleOverviewBtn.textContent = isHidden ? 'Show Overview' : 'Hide Overview';
+          if (!isHidden) {
+              overviewSection.scrollIntoView({ behavior: 'smooth' });
+          }
+      });
+
     // --- Initial Setup ---
     try {
         const response = await fetch('tanks.json');
