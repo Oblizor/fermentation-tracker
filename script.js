@@ -63,8 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const readingForm = document.getElementById('readingForm');
     const logTableBody = document.getElementById('logTableBody');
     const logTankIdSpan = document.getElementById('logTankId');
+    const submitButton = readingForm.querySelector('button[type="submit"]');
     
     let currentTankId = ''; // Variable to store the currently active tank ID
+    let editingIndex = null; // Track which log entry is being edited
 
     // ---- NEW: Function to populate the dropdown menu ----
     const populateTankSelector = () => {
@@ -81,14 +83,18 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTankId = tankSelect.value;
         const selectedTank = tanks.find(tank => tank.id === currentTankId);
 
-        if (selectedTank) {
-            tankDetailsP.textContent = `Capacity: ${selectedTank.capacity} L. Details: ${selectedTank.description}`;
-        } else {
-            tankDetailsP.textContent = '';
-        }
-        
-        renderLog(); // Load and display the log for the selected tank
-    };
+          if (selectedTank) {
+              tankDetailsP.textContent = `Capacity: ${selectedTank.capacity} L. Details: ${selectedTank.description}`;
+          } else {
+              tankDetailsP.textContent = '';
+          }
+
+          readingForm.reset();
+          submitButton.textContent = 'Save Reading';
+          editingIndex = null;
+
+          renderLog(); // Load and display the log for the selected tank
+      };
 
     // Function to render the log entries in the table
     const renderLog = () => {
@@ -96,23 +102,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const tankData = getTankData(currentTankId);
         logTankIdSpan.textContent = currentTankId;
 
-        tankData.forEach((reading, index) => {
-            const row = document.createElement('tr');
-            const formattedTimestamp = new Date(reading.timestamp).toLocaleString();
-            
-            row.innerHTML = `
-                <td>${formattedTimestamp}</td>
-                <td>${reading.temperature || ''}</td>
-                <td>${reading.sugar || ''}</td>
-                <td>${reading.ph || ''}</td>
-                <td>${reading.ta || ''}</td>
-                <td>${reading.notes || ''}</td>
-                <td><button class="delete-btn" data-index="${index}">Delete</button></td>
-            `;
-            
-            logTableBody.appendChild(row);
-        });
-    };
+          tankData.forEach((reading, index) => {
+              const row = document.createElement('tr');
+              const formattedTimestamp = new Date(reading.timestamp).toLocaleString();
+
+              row.innerHTML = `
+                  <td>${formattedTimestamp}</td>
+                  <td>${reading.temperature || ''}</td>
+                  <td>${reading.sugar || ''}</td>
+                  <td>${reading.ph || ''}</td>
+                  <td>${reading.ta || ''}</td>
+                  <td>${reading.notes || ''}</td>
+                  <td>
+                      <button class="edit-btn" data-index="${index}">Edit</button>
+                      <button class="delete-btn" data-index="${index}">Delete</button>
+                  </td>
+              `;
+
+              logTableBody.appendChild(row);
+          });
+      };
 
     // Function to get data for a specific tank from localStorage
     const getTankData = (tankId) => {
@@ -149,29 +158,50 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: document.getElementById('notes').value
         };
 
-        const tankData = getTankData(currentTankId);
-        tankData.push(newReading);
-        tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        saveTankData(currentTankId, tankData);
-        
-        renderLog(); 
-        readingForm.reset();
-    });
+          const tankData = getTankData(currentTankId);
+
+          if (editingIndex !== null) {
+              tankData[editingIndex] = newReading;
+              editingIndex = null;
+              submitButton.textContent = 'Save Reading';
+          } else {
+              tankData.push(newReading);
+          }
+
+          tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          saveTankData(currentTankId, tankData);
+
+          renderLog();
+          readingForm.reset();
+      });
 
     // Handle clicks on the "Delete" buttons
     logTableBody.addEventListener('click', (event) => {
-        if (event.target.classList.contains('delete-btn')) {
-            const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
-            
-            if (confirm('Are you sure you want to delete this entry?')) {
-                const tankData = getTankData(currentTankId);
-                const originalIndex = tankData.length - 1 - indexToDelete;
-                tankData.splice(originalIndex, 1);
-                saveTankData(currentTankId, tankData);
-                renderLog();
-            }
-        }
-    });
+          if (event.target.classList.contains('delete-btn')) {
+              const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
+
+              if (confirm('Are you sure you want to delete this entry?')) {
+                  const tankData = getTankData(currentTankId);
+                  tankData.splice(indexToDelete, 1);
+                  saveTankData(currentTankId, tankData);
+                  renderLog();
+              }
+          } else if (event.target.classList.contains('edit-btn')) {
+              const indexToEdit = parseInt(event.target.getAttribute('data-index'), 10);
+              const tankData = getTankData(currentTankId);
+              const reading = tankData[indexToEdit];
+
+              document.getElementById('timestamp').value = reading.timestamp;
+              document.getElementById('temperature').value = reading.temperature || '';
+              document.getElementById('sugar').value = reading.sugar || '';
+              document.getElementById('ph').value = reading.ph || '';
+              document.getElementById('ta').value = reading.ta || '';
+              document.getElementById('notes').value = reading.notes || '';
+
+              editingIndex = indexToEdit;
+              submitButton.textContent = 'Update Reading';
+          }
+      });
     
     // --- Initial Setup ---
     populateTankSelector(); // Fill the dropdown with your tanks
