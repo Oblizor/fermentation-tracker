@@ -122,23 +122,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const timestamp = document.getElementById('timestamp').value.trim();
         const notes = document.getElementById('notes').value;
 
-        const rawValues = {
-            temperature: document.getElementById('temperature').value.trim(),
-            sugar: document.getElementById('sugar').value.trim(),
-            ph: document.getElementById('ph').value.trim(),
-            ta: document.getElementById('ta').value.trim(),
-        };
-
         const newReading = { timestamp, notes };
+        const numericFields = ['temperature', 'sugar', 'ph', 'ta'];
 
-        for (const [key, val] of Object.entries(rawValues)) {
-            if (val === '') continue;
-            const parsed = parseFloat(val);
+        for (const field of numericFields) {
+            const value = document.getElementById(field).value.trim();
+            if (value === '') continue;
+            const parsed = parseFloat(value);
             if (Number.isNaN(parsed)) {
-                alert(`Please enter a valid ${key}.`);
+                alert(`Please enter a valid ${field}.`);
                 return;
             }
-            newReading[key] = parsed;
+            newReading[field] = parsed;
         }
 
         const tankData = getTankData(currentTankId);
