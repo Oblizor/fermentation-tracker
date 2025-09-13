@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overviewSection = document.querySelector('.overview');
     const sugarInput = document.getElementById('sugar');
     const sugarGLInput = document.getElementById('sugarGL');
+    const varietyInput = document.getElementById('grapeVarietyInput');
 
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
@@ -39,12 +40,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ---- NEW: Function to handle when a new tank is selected ----
     const handleTankSelection = () => {
         currentTankId = tankSelect.value;
+        const selectedTank = tanks.find(t => t.id === currentTankId);
+        if (selectedTank) {
+            const storedVariety = localStorage.getItem(currentTankId + '_variety');
+            selectedTank.grapeVariety = storedVariety || selectedTank.grapeVariety || '';
+            if (varietyInput) {
+                varietyInput.value = selectedTank.grapeVariety;
+            }
+        } else if (varietyInput) {
+            varietyInput.value = '';
+        }
         renderLog(); // Load and display the log for the selected tank
         readingForm.reset();
         sugarGLInput.value = '';
         editingIndex = null;
         submitBtn.textContent = 'Save Reading';
     };
+
+    if (varietyInput) {
+        varietyInput.addEventListener('input', () => {
+            if (!currentTankId) return;
+            const selectedTank = tanks.find(t => t.id === currentTankId);
+            if (!selectedTank) return;
+            const value = varietyInput.value.trim();
+            selectedTank.grapeVariety = value;
+            if (value) {
+                localStorage.setItem(currentTankId + '_variety', value);
+            } else {
+                localStorage.removeItem(currentTankId + '_variety');
+            }
+            updateTankDetails();
+        });
+    }
 
     const updateSugarConversion = () => {
         const baume = parseFloat(sugarInput.value);
