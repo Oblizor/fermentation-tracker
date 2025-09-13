@@ -1,62 +1,7 @@
-// --- ALL YOUR TANK DATA LIVES HERE ---
-// I've converted your list into a format JavaScript can understand.
-const tanks = [
-    // Cu manta
-    { id: 'R1', capacity: 3528, description: 'Inox, manta' },
-    { id: 'R2', capacity: 3911, description: 'Inox, manta' },
-    { id: 'R3', capacity: 3528, description: 'Inox, manta' },
-    { id: 'R4', capacity: 3528, description: 'Inox, manta' },
-    { id: 'R5', capacity: 3528, description: 'Inox, manta' },
-    { id: 'R6', capacity: 3911, description: 'Inox, manta' },
-    { id: 'R7', capacity: 8133, description: 'Vinificator roșu, manta încălzire + piston + pompă remontaj' },
-    { id: 'R8', capacity: 8133, description: 'Vinificator roșu, manta încălzire + piston + pompă remontaj' },
-    { id: 'R9', capacity: 2966, description: 'Inox, manta' },
-    { id: 'R10', capacity: 2181, description: 'Inox, manta' },
-    { id: 'R11', capacity: 2017, description: 'Inox, manta' },
-    { id: 'R12', capacity: 1684, description: 'Inox, manta' },
-    { id: 'R13', capacity: 2631, description: 'Inox, manta' },
-    { id: 'R14', capacity: 2609, description: 'Inox, manta' },
-    { id: 'R15', capacity: 3424, description: 'Inox, manta' },
-    { id: 'R16', capacity: 3424, description: 'Inox, manta' },
-    { id: 'R17', capacity: 3435, description: 'Inox, manta' },
-    { id: 'R18', capacity: 3436, description: 'Inox, manta' },
-    { id: 'R34', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R35', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R36', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R37', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R39', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R40', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R41', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R43', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R44', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R45', capacity: 5295, description: 'Inox, manta' },
-    { id: 'R46', capacity: 5295, description: 'Inox, manta' },
-    // Fără manta
-    { id: 'R19', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R20', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R21', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R22', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R23', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R24', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R25', capacity: 4216, description: 'Inox, fără manta' },
-    { id: 'R26', capacity: 5106, description: 'Inox, fără manta' },
-    { id: 'R27', capacity: 1587, description: 'Inox, fără manta' },
-    { id: 'R28', capacity: 1584, description: 'Inox, fără manta' },
-    { id: 'R29', capacity: 5243, description: 'Inox, fără manta' },
-    { id: 'R30', capacity: 3435, description: 'Inox, fără manta' },
-    { id: 'R31', capacity: 3422, description: 'Inox, fără manta' },
-    { id: 'R32', capacity: 1054, description: 'Inox, fără manta' },
-    { id: 'R33', capacity: 1000, description: 'Inox, fără manta' },
-    { id: 'R38', capacity: 3250, description: 'Inox, fără manta' },
-    { id: 'R42', capacity: 1180, description: 'Inox, fără manta' },
-    // Mari (afară)
-    { id: 'R47', capacity: 4900, description: 'Inox, afară, fără manta' },
-    { id: 'R48', capacity: 10200, description: 'Inox, afară, fără manta' },
-    { id: 'R49', capacity: 10200, description: 'Inox, afară, fără manta' }
-];
+// Tank data will be loaded from an external JSON file
 
 // Wait for the HTML document to be fully loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Get references to the HTML elements
     const tankSelect = document.getElementById('tankSelect');
     const tankDetailsP = document.getElementById('tankDetails');
@@ -65,9 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const logTankIdSpan = document.getElementById('logTankId');
     
     let currentTankId = ''; // Variable to store the currently active tank ID
+    let tanks = []; // Will hold the tank list loaded from JSON
 
     // ---- NEW: Function to populate the dropdown menu ----
     const populateTankSelector = () => {
+        tankSelect.innerHTML = '';
         tanks.forEach(tank => {
             const option = document.createElement('option');
             option.value = tank.id;
@@ -200,6 +147,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // --- Initial Setup ---
-    populateTankSelector(); // Fill the dropdown with your tanks
-    handleTankSelection(); // Load the data for the first tank in the list by default
+    try {
+        const response = await fetch('tanks.json');
+        tanks = await response.json();
+        populateTankSelector();
+        handleTankSelection();
+    } catch (error) {
+        console.error('Failed to load tanks:', error);
+    }
 });
