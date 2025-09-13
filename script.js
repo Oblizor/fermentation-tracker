@@ -152,15 +152,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle clicks on the "Delete" buttons
     logTableBody.addEventListener('click', (event) => {
-        if (!event.target.classList.contains('delete-btn')) return;
+        const index = parseInt(event.target.getAttribute('data-index'), 10);
 
-        const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
-        if (!confirm('Are you sure you want to delete this entry?')) return;
-
-        const tankData = getTankData(currentTankId);
-        tankData.splice(indexToDelete, 1);
-        saveTankData(currentTankId, tankData);
-        renderLog();
+        if (event.target.classList.contains('edit-btn')) {
+            const tankData = getTankData(currentTankId);
+            const entry = tankData[index];
+            document.getElementById('timestamp').value = entry.timestamp;
+            document.getElementById('temperature').value = entry.temperature ?? '';
+            document.getElementById('sugar').value = entry.sugar ?? '';
+            document.getElementById('ph').value = entry.ph ?? '';
+            document.getElementById('ta').value = entry.ta ?? '';
+            document.getElementById('notes').value = entry.notes ?? '';
+            editingIndex = index;
+            submitBtn.textContent = 'Update Reading';
+        } else if (event.target.classList.contains('delete-btn')) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                const tankData = getTankData(currentTankId);
+                tankData.splice(index, 1);
+                saveTankData(currentTankId, tankData);
+                renderLog();
+            }
+        }
     });
 
       exportBtn.addEventListener('click', () => {
