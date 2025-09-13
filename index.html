@@ -52,9 +52,10 @@
                         <label for="temperature">Temperature (°C)</label>
                         <input type="number" id="temperature" step="0.1" placeholder="e.g., 15.5">
                     </div>
-                     <div class="form-group">
+                    <div class="form-group">
                         <label for="sugar">Sugar (Baumé)</label>
                         <input type="number" id="sugar" step="0.1" placeholder="e.g., 12.5">
+                        <input type="number" id="sugarGL" placeholder="g/L" disabled>
                     </div>
                     <div class="form-group">
                         <label for="sg">Specific Gravity</label>
@@ -117,8 +118,11 @@
                         <td><button type="button" id="kmsSave">Save to Log</button></td>
                     </tr>
                     <tr>
-                        <td>Bentonite (g/hL)</td>
-                        <td><input type="number" id="bentoniteRate" step="0.01" placeholder="e.g., 10"></td>
+                        <td>Bentonite</td>
+                        <td>
+                            <input type="number" id="bentoniteRate" step="0.01" placeholder="e.g., 1">
+                            <button type="button" id="bentoniteUnitBtn">g/L</button>
+                        </td>
                         <td><span id="bentoniteAmount"></span></td>
                         <td><button type="button" id="bentoniteSave">Save to Log</button></td>
                     </tr>
@@ -130,6 +134,24 @@
                     </tr>
                 </tbody>
             </table>
+        </section>
+
+        <section class="acid-calculator">
+            <h2>pH Adjustment Calculator</h2>
+            <div class="form-group">
+                <label for="currentPH">Current pH</label>
+                <input type="number" id="currentPH" step="0.01" placeholder="e.g., 3.8">
+            </div>
+            <div class="form-group">
+                <label for="targetPH">Target pH</label>
+                <input type="number" id="targetPH" step="0.01" placeholder="e.g., 3.4">
+            </div>
+            <div class="form-group">
+                <label for="phVolume">Volume (L)</label>
+                <input type="number" id="phVolume" step="0.1" placeholder="e.g., 100">
+            </div>
+            <button type="button" id="calculatePH">Calculate Acid Addition</button>
+            <div id="phResult"></div>
         </section>
 
         <section class="log-display">

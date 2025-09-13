@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const overviewTableBody = document.getElementById('overviewTableBody');
     const toggleOverviewBtn = document.getElementById('toggleOverviewBtn');
     const overviewSection = document.querySelector('.overview');
+    const sugarInput = document.getElementById('sugar');
+    const sugarGLInput = document.getElementById('sugarGL');
 
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
@@ -39,9 +41,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentTankId = tankSelect.value;
         renderLog(); // Load and display the log for the selected tank
         readingForm.reset();
+        sugarGLInput.value = '';
         editingIndex = null;
         submitBtn.textContent = 'Save Reading';
     };
+
+    const updateSugarConversion = () => {
+        const baume = parseFloat(sugarInput.value);
+        if (!Number.isNaN(baume)) {
+            sugarGLInput.value = (baume * 18).toFixed(1);
+        } else {
+            sugarGLInput.value = '';
+        }
+    };
+    if (sugarInput) {
+        sugarInput.addEventListener('input', updateSugarConversion);
+    }
+    readingForm.addEventListener('reset', () => {
+        sugarGLInput.value = '';
+    });
 
     // Function to render the log entries in the table
     const renderLog = () => {
@@ -171,6 +189,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Additive Calculator ---
     const calcVolumeInput = document.getElementById('calcVolume');
     if (calcVolumeInput) {
+        const bentoniteUnitBtn = document.getElementById('bentoniteUnitBtn');
+        const bentoniteUnits = ['g/L', 'g/hL', 'mg/L'];
+        let bentoniteUnitIndex = 0;
+        const calcBentonite = (vol, rate) => {
+            const unit = bentoniteUnits[bentoniteUnitIndex];
+            if (unit === 'g/L') return vol * rate;
+            if (unit === 'mg/L') return vol * rate / 1000;
+            return vol * rate / 100;
+        };
+
         const calcFields = [
             {
                 name: 'Nutrients',
@@ -202,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 resultSpan: document.getElementById('bentoniteAmount'),
                 button: document.getElementById('bentoniteSave'),
                 unit: 'g',
-                calc: (vol, rate) => vol * rate / 100
+                calc: (vol, rate) => calcBentonite(vol, rate)
             },
             {
                 name: 'Tannins',
@@ -228,6 +256,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
         };
+        bentoniteUnitBtn.addEventListener('click', () => {
+            bentoniteUnitIndex = (bentoniteUnitIndex + 1) % bentoniteUnits.length;
+            bentoniteUnitBtn.textContent = bentoniteUnits[bentoniteUnitIndex];
+            updateCalculator();
+        });
 
         calcVolumeInput.addEventListener('input', updateCalculator);
         calcFields.forEach(field => {
@@ -250,6 +283,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderLog();
                 renderOverview();
             });
+        });
+    }
+
+    // --- pH Adjustment Calculator ---
+    const calculatePHBtn = document.getElementById('calculatePH');
+    if (calculatePHBtn) {
+        calculatePHBtn.addEventListener('click', () => {
+            const currentPH = parseFloat(document.getElementById('currentPH').value);
+            const targetPH = parseFloat(document.getElementById('targetPH').value);
+            const volume = parseFloat(document.getElementById('phVolume').value);
+            const resultDiv = document.getElementById('phResult');
+            if (Number.isNaN(currentPH) || Number.isNaN(targetPH) || Number.isNaN(volume) || currentPH <= targetPH) {
+                resultDiv.textContent = 'Please enter valid values. Current pH must be higher than target pH.';
+                return;
+            }
+            const diff = currentPH - targetPH;
+            const acidPerLiter = diff / 0.1;
+            const totalAcid = acidPerLiter * volume;
+            resultDiv.textContent = `Add ${acidPerLiter.toFixed(2)} g/L tartaric acid (${totalAcid.toFixed(1)} g total).`;
         });
     }
 
@@ -310,6 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('timestamp').value = entry.timestamp;
             document.getElementById('temperature').value = entry.temperature ?? '';
             document.getElementById('sugar').value = entry.sugar ?? '';
+            updateSugarConversion();
             document.getElementById('sg').value = entry.sg ?? '';
             document.getElementById('ph').value = entry.ph ?? '';
             document.getElementById('ta').value = entry.ta ?? '';
