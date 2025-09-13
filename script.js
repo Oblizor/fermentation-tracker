@@ -1,30 +1,103 @@
-// Wait for the HTML document to be fully loaded before running the script
+// --- ALL YOUR TANK DATA LIVES HERE ---
+// I've converted your list into a format JavaScript can understand.
+const tanks = [
+    // Cu manta
+    { id: 'R1', capacity: 3528, description: 'Inox, manta' },
+    { id: 'R2', capacity: 3911, description: 'Inox, manta' },
+    { id: 'R3', capacity: 3528, description: 'Inox, manta' },
+    { id: 'R4', capacity: 3528, description: 'Inox, manta' },
+    { id: 'R5', capacity: 3528, description: 'Inox, manta' },
+    { id: 'R6', capacity: 3911, description: 'Inox, manta' },
+    { id: 'R7', capacity: 8133, description: 'Vinificator roșu, manta încălzire + piston + pompă remontaj' },
+    { id: 'R8', capacity: 8133, description: 'Vinificator roșu, manta încălzire + piston + pompă remontaj' },
+    { id: 'R9', capacity: 2966, description: 'Inox, manta' },
+    { id: 'R10', capacity: 2181, description: 'Inox, manta' },
+    { id: 'R11', capacity: 2017, description: 'Inox, manta' },
+    { id: 'R12', capacity: 1684, description: 'Inox, manta' },
+    { id: 'R13', capacity: 2631, description: 'Inox, manta' },
+    { id: 'R14', capacity: 2609, description: 'Inox, manta' },
+    { id: 'R15', capacity: 3424, description: 'Inox, manta' },
+    { id: 'R16', capacity: 3424, description: 'Inox, manta' },
+    { id: 'R17', capacity: 3435, description: 'Inox, manta' },
+    { id: 'R18', capacity: 3436, description: 'Inox, manta' },
+    { id: 'R34', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R35', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R36', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R37', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R39', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R40', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R41', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R43', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R44', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R45', capacity: 5295, description: 'Inox, manta' },
+    { id: 'R46', capacity: 5295, description: 'Inox, manta' },
+    // Fără manta
+    { id: 'R19', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R20', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R21', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R22', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R23', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R24', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R25', capacity: 4216, description: 'Inox, fără manta' },
+    { id: 'R26', capacity: 5106, description: 'Inox, fără manta' },
+    { id: 'R27', capacity: 1587, description: 'Inox, fără manta' },
+    { id: 'R28', capacity: 1584, description: 'Inox, fără manta' },
+    { id: 'R29', capacity: 5243, description: 'Inox, fără manta' },
+    { id: 'R30', capacity: 3435, description: 'Inox, fără manta' },
+    { id: 'R31', capacity: 3422, description: 'Inox, fără manta' },
+    { id: 'R32', capacity: 1054, description: 'Inox, fără manta' },
+    { id: 'R33', capacity: 1000, description: 'Inox, fără manta' },
+    { id: 'R38', capacity: 3250, description: 'Inox, fără manta' },
+    { id: 'R42', capacity: 1180, description: 'Inox, fără manta' },
+    // Mari (afară)
+    { id: 'R47', capacity: 4900, description: 'Inox, afară, fără manta' },
+    { id: 'R48', capacity: 10200, description: 'Inox, afară, fără manta' },
+    { id: 'R49', capacity: 10200, description: 'Inox, afară, fără manta' }
+];
+
+// Wait for the HTML document to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Get references to the HTML elements we will interact with
-    const tankIdInput = document.getElementById('tankId');
-    const loadTankBtn = document.getElementById('loadTankData');
+    // Get references to the HTML elements
+    const tankSelect = document.getElementById('tankSelect');
+    const tankDetailsP = document.getElementById('tankDetails');
     const readingForm = document.getElementById('readingForm');
     const logTableBody = document.getElementById('logTableBody');
     const logTankIdSpan = document.getElementById('logTankId');
     
     let currentTankId = ''; // Variable to store the currently active tank ID
 
+    // ---- NEW: Function to populate the dropdown menu ----
+    const populateTankSelector = () => {
+        tanks.forEach(tank => {
+            const option = document.createElement('option');
+            option.value = tank.id;
+            option.textContent = `${tank.id} (${tank.capacity} L)`;
+            tankSelect.appendChild(option);
+        });
+    };
+    
+    // ---- NEW: Function to handle when a new tank is selected ----
+    const handleTankSelection = () => {
+        currentTankId = tankSelect.value;
+        const selectedTank = tanks.find(tank => tank.id === currentTankId);
+
+        if (selectedTank) {
+            tankDetailsP.textContent = `Capacity: ${selectedTank.capacity} L. Details: ${selectedTank.description}`;
+        } else {
+            tankDetailsP.textContent = '';
+        }
+        
+        renderLog(); // Load and display the log for the selected tank
+    };
+
     // Function to render the log entries in the table
     const renderLog = () => {
-        // Clear the current table content
         logTableBody.innerHTML = '';
-        
-        // Get the data for the current tank from localStorage
         const tankData = getTankData(currentTankId);
-
-        // Update the log header to show the current tank ID
         logTankIdSpan.textContent = currentTankId;
 
-        // Loop through each reading and add it as a row to the table
         tankData.forEach((reading, index) => {
             const row = document.createElement('tr');
-            
-            // Format the timestamp to be more readable
             const formattedTimestamp = new Date(reading.timestamp).toLocaleString();
             
             row.innerHTML = `
@@ -43,41 +116,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to get data for a specific tank from localStorage
     const getTankData = (tankId) => {
-        if (!tankId) return []; // Return empty array if no tankId is provided
+        if (!tankId) return [];
         const data = localStorage.getItem(tankId);
-        // If data exists, parse it from JSON string to an array; otherwise, return an empty array
         return data ? JSON.parse(data) : [];
     };
     
     // Function to save data for a specific tank to localStorage
     const saveTankData = (tankId, data) => {
-        // Convert the data array to a JSON string and save it
         localStorage.setItem(tankId, JSON.stringify(data));
     };
 
     // --- Event Listeners ---
 
-    // Handle the "Load Tank Data" button click
-    loadTankBtn.addEventListener('click', () => {
-        const tankId = tankIdInput.value.trim();
-        if (tankId) {
-            currentTankId = tankId;
-            renderLog(); // Re-render the log for the new tank
-        } else {
-            alert('Please enter a Tank ID.');
-        }
-    });
+    // NEW: Listen for changes on the dropdown menu
+    tankSelect.addEventListener('change', handleTankSelection);
 
     // Handle the form submission for a new reading
     readingForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent the page from reloading on submit
+        event.preventDefault(); 
 
         if (!currentTankId) {
-            alert('Please load a tank before saving a reading.');
+            alert('Please select a tank from the dropdown.');
             return;
         }
 
-        // Create a new reading object from the form inputs
         const newReading = {
             timestamp: document.getElementById('timestamp').value,
             temperature: document.getElementById('temperature').value,
@@ -87,31 +149,31 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: document.getElementById('notes').value
         };
 
-        // Get the existing data, add the new reading, and save it back
         const tankData = getTankData(currentTankId);
         tankData.push(newReading);
-        // Sort data by timestamp, newest first
         tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         saveTankData(currentTankId, tankData);
         
-        renderLog(); // Update the table display
-        readingForm.reset(); // Clear the form fields
+        renderLog(); 
+        readingForm.reset();
     });
 
-    // Handle clicks on the "Delete" buttons in the table
+    // Handle clicks on the "Delete" buttons
     logTableBody.addEventListener('click', (event) => {
         if (event.target.classList.contains('delete-btn')) {
             const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
             
             if (confirm('Are you sure you want to delete this entry?')) {
                 const tankData = getTankData(currentTankId);
-                tankData.splice(indexToDelete, 1); // Remove the item at the specified index
+                const originalIndex = tankData.length - 1 - indexToDelete;
+                tankData.splice(originalIndex, 1);
                 saveTankData(currentTankId, tankData);
-                renderLog(); // Re-render the log
+                renderLog();
             }
         }
     });
     
-    // Automatically load the default tank on page load
-    loadTankBtn.click();
+    // --- Initial Setup ---
+    populateTankSelector(); // Fill the dropdown with your tanks
+    handleTankSelection(); // Load the data for the first tank in the list by default
 });
