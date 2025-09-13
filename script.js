@@ -35,14 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ---- NEW: Function to handle when a new tank is selected ----
     const handleTankSelection = () => {
         currentTankId = tankSelect.value;
-        const selectedTank = tanks.find(tank => tank.id === currentTankId);
-
-        if (selectedTank) {
-            tankDetailsP.textContent = `Capacity: ${selectedTank.capacity} L. Details: ${selectedTank.description}`;
-        } else {
-            tankDetailsP.textContent = '';
-        }
-
         renderLog(); // Load and display the log for the selected tank
         readingForm.reset();
         editingIndex = null;
@@ -66,6 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${reading.sg || ''}</td>
                 <td>${reading.ph || ''}</td>
                 <td>${reading.ta || ''}</td>
+                <td>${reading.volume || ''}</td>
                 <td>${reading.notes || ''}</td>
                 <td>
                     <button class="edit-btn" data-index="${index}">Edit</button>
@@ -75,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             logTableBody.appendChild(row);
         });
+        updateTankDetails();
     };
 
     // Function to get data for a specific tank from localStorage
@@ -88,6 +82,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveTankData = (tankId, data) => {
         localStorage.setItem(tankId, JSON.stringify(data));
     };
+
+    // Update the tank details section with capacity and latest volume
+    function updateTankDetails() {
+        const selectedTank = tanks.find(tank => tank.id === currentTankId);
+        if (!selectedTank) {
+            tankDetailsP.textContent = '';
+            return;
+        }
+        const tankData = getTankData(currentTankId);
+        let latestVolume = null;
+        if (tankData.length > 0) {
+            const latest = tankData.reduce((a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b);
+            if (latest.volume !== undefined) {
+                latestVolume = latest.volume;
+            }
+        }
+        const volumeDisplay = latestVolume !== null ? `${latestVolume} / ${selectedTank.capacity} L` : `N/A / ${selectedTank.capacity} L`;
+        tankDetailsP.textContent = `Volume: ${volumeDisplay}. Details: ${selectedTank.description}`;
+    }
 
     // Render the overview table with the latest reading for each tank
     const renderOverview = () => {
@@ -168,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const notes = document.getElementById('notes').value;
 
         const newReading = { timestamp, notes };
-        const numericFields = ['temperature', 'sugar', 'sg', 'ph', 'ta'];
+        const numericFields = ['temperature', 'sugar', 'sg', 'ph', 'ta', 'volume'];
 
         for (const field of numericFields) {
             const value = document.getElementById(field).value.trim();
@@ -210,6 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('sg').value = entry.sg ?? '';
             document.getElementById('ph').value = entry.ph ?? '';
             document.getElementById('ta').value = entry.ta ?? '';
+            document.getElementById('volume').value = entry.volume ?? '';
             document.getElementById('notes').value = entry.notes ?? '';
             editingIndex = index;
             submitBtn.textContent = 'Update Reading';
@@ -300,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   if (!Array.isArray(imported)) throw new Error('Invalid file format');
 
                   const existingData = getTankData(currentTankId);
-                  const numericFields = ['temperature', 'sugar', 'sg', 'ph', 'ta'];
+                  const numericFields = ['temperature', 'sugar', 'sg', 'ph', 'ta', 'volume'];
 
                   imported.forEach(entry => {
                       numericFields.forEach(field => {
