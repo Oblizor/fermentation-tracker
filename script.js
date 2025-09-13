@@ -8,12 +8,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const readingForm = document.getElementById('readingForm');
     const logTableBody = document.getElementById('logTableBody');
     const logTankIdSpan = document.getElementById('logTankId');
-    const exportBtn = document.getElementById('exportBtn');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
     const importBtn = document.getElementById('importBtn');
     const importFileInput = document.getElementById('importFile');
-    
+    const submitBtn = readingForm.querySelector('button[type="submit"]');
+
     let currentTankId = ''; // Variable to store the currently active tank ID
     let tanks = []; // Will hold the tank list loaded from JSON
+    let editingIndex = null; // Tracks which log entry is being edited
 
     // ---- NEW: Function to populate the dropdown menu ----
     const populateTankSelector = () => {
@@ -57,7 +60,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${reading.ph || ''}</td>
                 <td>${reading.ta || ''}</td>
                 <td>${reading.notes || ''}</td>
-                <td><button class="delete-btn" data-index="${index}">Delete</button></td>
+                <td>
+                    <button class="edit-btn" data-index="${index}">Edit</button>
+                    <button class="delete-btn" data-index="${index}">Delete</button>
+                </td>
             `;
             
             logTableBody.appendChild(row);
@@ -151,7 +157,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (ta !== null) newReading.ta = ta;
 
         const tankData = getTankData(currentTankId);
-        tankData.push(newReading);
+        if (editingIndex !== null) {
+            tankData[editingIndex] = newReading;
+            editingIndex = null;
+            submitBtn.textContent = 'Save Reading';
+        } else {
+            tankData.push(newReading);
+        }
         tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         saveTankData(currentTankId, tankData);
 
@@ -159,51 +171,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         readingForm.reset();
     });
 
-    // Handle clicks on the "Delete" buttons
-      logTableBody.addEventListener('click', (event) => {
-          if (event.target.classList.contains('delete-btn')) {
-              const indexToDelete = parseInt(event.target.getAttribute('data-index'), 10);
-            
+    // Handle clicks on the Edit and Delete buttons
+    logTableBody.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.classList.contains('edit-btn')) {
+            const indexToEdit = parseInt(target.getAttribute('data-index'), 10);
+            const tankData = getTankData(currentTankId);
+            const entry = tankData[indexToEdit];
+            document.getElementById('timestamp').value = entry.timestamp || '';
+            document.getElementById('temperature').value = entry.temperature ?? '';
+            document.getElementById('sugar').value = entry.sugar ?? '';
+            document.getElementById('ph').value = entry.ph ?? '';
+            document.getElementById('ta').value = entry.ta ?? '';
+            document.getElementById('notes').value = entry.notes ?? '';
+            editingIndex = indexToEdit;
+            submitBtn.textContent = 'Update Reading';
+        } else if (target.classList.contains('delete-btn')) {
+            const indexToDelete = parseInt(target.getAttribute('data-index'), 10);
+
             if (confirm('Are you sure you want to delete this entry?')) {
                 const tankData = getTankData(currentTankId);
                 tankData.splice(indexToDelete, 1);
                 saveTankData(currentTankId, tankData);
                 renderLog();
             }
-          }
-      });
+        }
+    });
 
-      exportBtn.addEventListener('click', () => {
-          if (!currentTankId) {
-              alert('Please select a tank from the dropdown.');
-              return;
-          }
-          const tankData = getTankData(currentTankId);
-          if (tankData.length === 0) {
-              alert('No data to export for this tank.');
-              return;
-          }
-          const format = prompt('Enter export format: "csv" or "json"', 'json');
-          let content, mime, ext;
-          if (format && format.toLowerCase() === 'csv') {
-              content = toCSV(tankData);
-              mime = 'text/csv';
-              ext = 'csv';
-          } else {
-              content = JSON.stringify(tankData, null, 2);
-              mime = 'application/json';
-              ext = 'json';
-          }
-          const blob = new Blob([content], { type: mime });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${currentTankId}_log.${ext}`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-      });
+    const exportData = (format) => {
+        if (!currentTankId) {
+            alert('Please select a tank from the dropdown.');
+            return;
+        }
+        const tankData = getTankData(currentTankId);
+        if (tankData.length === 0) {
+            alert('No data to export for this tank.');
+            return;
+        }
+        let content, mime, ext;
+        if (format === 'csv') {
+            content = toCSV(tankData);
+            mime = 'text/csv';
+            ext = 'csv';
+        } else {
+            content = JSON.stringify(tankData, null, 2);
+            mime = 'application/json';
+            ext = 'json';
+        }
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentTankId}_log.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    exportJsonBtn.addEventListener('click', () => exportData('json'));
+    exportCsvBtn.addEventListener('click', () => exportData('csv'));
 
       importBtn.addEventListener('click', () => {
           if (!currentTankId) {
