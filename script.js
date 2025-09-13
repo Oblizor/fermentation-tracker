@@ -212,10 +212,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                       imported = JSON.parse(e.target.result);
                   }
                   if (!Array.isArray(imported)) throw new Error('Invalid file format');
+
                   const tankData = getTankData(currentTankId);
-                  const merged = tankData.concat(imported);
-                  merged.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                  saveTankData(currentTankId, merged);
+                  const numericFields = ['temperature', 'sugar', 'ph', 'ta'];
+
+                  imported.forEach(entry => {
+                      numericFields.forEach(field => {
+                          if (entry[field] !== undefined && entry[field] !== '') {
+                              const num = parseFloat(entry[field]);
+                              if (!Number.isNaN(num)) {
+                                  entry[field] = num;
+                              }
+                          }
+                      });
+                      tankData.push(entry);
+                  });
+
+                  tankData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                  saveTankData(currentTankId, tankData);
                   renderLog();
                   alert('Import successful!');
               } catch (err) {
