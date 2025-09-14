@@ -2,8 +2,12 @@
 const FermentationCalculations = {
     // Unit conversions
     baumeToGL: (baume) => baume * 18,
-    
+
     glToBaume: (gl) => gl / 18,
+
+    brixToGL: (brix) => brix * 10,
+
+    glToBrix: (gl) => gl / 10,
     
     // Additive calculations
     calculateNutrients: (volume, rateGHL) => volume * rateGHL / 100,
