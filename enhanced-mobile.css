@@ -1,0 +1,117 @@
+/* enhanced-mobile.css - Mobile-optimized design */
+@media (max-width: 768px) {
+    .fermentation-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .tank-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--tank-status-color);
+        transition: transform 0.2s ease;
+    }
+
+    .tank-card:active {
+        transform: scale(0.98);
+    }
+
+    .tank-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .tank-id {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    .tank-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active { 
+        background: #d4edda; 
+        color: #155724; 
+        --tank-status-color: #28a745;
+    }
+    
+    .status-complete { 
+        background: #d1ecf1; 
+        color: #0c5460; 
+        --tank-status-color: #17a2b8;
+    }
+    
+    .status-warning { 
+        background: #fff3cd; 
+        color: #856404; 
+        --tank-status-color: #ffc107;
+    }
+    
+    .status-critical { 
+        background: #f8d7da; 
+        color: #721c24; 
+        --tank-status-color: #dc3545;
+        animation: pulse 2s infinite;
+    }
+
+    .tank-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 12px 0;
+    }
+
+    .metric {
+        text-align: center;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .metric-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    .metric-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 2px;
+    }
+
+    /* Swipe gestures for tank navigation */
+    .tank-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tank-container.swiping .tank-card {
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+}
+
+/* Haptic feedback simulation */
+.haptic-feedback {
+    animation: haptic-pulse 0.1s ease-in-out;
+}
+
+@keyframes haptic-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
