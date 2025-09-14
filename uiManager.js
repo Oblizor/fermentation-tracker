@@ -123,6 +123,8 @@ class UIManager {
             const row = this.createLogRow(reading, index);
             tbody.appendChild(row);
         });
+
+        this.renderQuickInsights();
     }
 
     createLogRow(reading, index) {
@@ -187,6 +189,82 @@ class UIManager {
             
             tbody.appendChild(row);
         });
+    }
+
+    renderQuickInsights() {
+        const container = document.getElementById('insightsContainer');
+        if (!container) return;
+
+        const data = this.dataManager.getTankData(this.currentTankId);
+        if (data.length < 2) {
+            container.innerHTML = '<p>Need at least 2 readings for insights</p>';
+            return;
+        }
+
+        // Analyze fermentation progress
+        const analysis = FermentationCalculations.analyzeFermentationRate(data);
+
+        if (!analysis) {
+            container.innerHTML = '<p>Add sugar readings to see fermentation insights</p>';
+            return;
+        }
+
+        const daysToComplete = analysis.daysToComplete;
+        const completionDate = new Date();
+        completionDate.setDate(completionDate.getDate() + Math.ceil(daysToComplete));
+
+        container.innerHTML = `
+            <div class="insight-card">
+                <h4>Fermentation Progress</h4>
+                <div class="metric">
+                    <span class="metric-label">Current Sugar</span>
+                    <span class="metric-value">${analysis.currentSugar.toFixed(1)} Baumé</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Drop Rate</span>
+                    <span class="metric-value">${analysis.averageRate.toFixed(2)} Baumé/day</span>
+                </div>
+            </div>
+
+            <div class="insight-card">
+                <h4>Completion Forecast</h4>
+                <div class="metric">
+                    <span class="metric-label">Days Remaining</span>
+                    <span class="metric-value">${Math.ceil(daysToComplete)}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Est. Date</span>
+                    <span class="metric-value">${completionDate.toLocaleDateString()}</span>
+                </div>
+            </div>
+
+            <div class="insight-card ${this.getStatusClass(analysis)}">
+                <h4>Status</h4>
+                <p>${this.getStatusMessage(analysis)}</p>
+            </div>
+        `;
+    }
+
+    getStatusClass(analysis) {
+        if (analysis.currentSugar === 0) return 'status-complete';
+        if (analysis.averageRate < 0.5) return 'status-slow';
+        return 'status-active';
+    }
+
+    getStatusMessage(analysis) {
+        if (analysis.currentSugar === 0) {
+            return '✓ Fermentation complete - ready for next stage';
+        }
+        if (analysis.averageRate < 0.3) {
+            return '⚠️ Very slow fermentation - check temperature and nutrients';
+        }
+        if (analysis.averageRate < 0.5) {
+            return '⚠️ Slow fermentation - consider intervention';
+        }
+        if (analysis.currentSugar < 2) {
+            return '📊 Nearly complete - prepare for racking';
+        }
+        return '✓ Fermentation progressing normally';
     }
 
     loadFormData(reading) {

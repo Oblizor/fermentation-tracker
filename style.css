@@ -200,3 +200,66 @@ tbody tr:hover {
         padding: 15px;
     }
 }
+
+/* Quick Insights Styling */
+.quick-insights {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.quick-insights h2 {
+    color: white;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.insight-card {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.insight-card h4 {
+    margin: 0 0 10px 0;
+    color: #4a6da7;
+    font-size: 0.95em;
+}
+
+.metric {
+    margin: 10px 0;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+.metric-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+.insight-card.status-active {
+    border-left: 4px solid #28a745;
+}
+
+.insight-card.status-slow {
+    border-left: 4px solid #ffc107;
+    background: #fff3cd;
+}
+
+.insight-card.status-complete {
+    border-left: 4px solid #17a2b8;
+    background: #d1ecf1;
+}
