@@ -3,9 +3,15 @@ class FermentationTracker {
     constructor() {
         this.dataManager = new DataManager();
         this.uiManager = new UIManager(this.dataManager);
+        this.visualizer = new VisualizationEngine();
+        this.alertSystem = new FermentationAlertSystem(this.dataManager);
+        this.collaboration = new CollaborationManager(this.dataManager);
         this.tanks = [];
+        this.reporting = new ReportingEngine(this.dataManager, this.tanks);
         this.initializeEventListeners();
         this.initializeCalculators();
+        this.startAlertMonitoring();
+        window.collaboration = this.collaboration;
     }
 
     async init() {
@@ -20,12 +26,21 @@ class FermentationTracker {
             // Select first tank
             if (this.tanks.length > 0) {
                 this.uiManager.selectTank(this.tanks[0].id);
+                this.visualizer.renderFermentationCurve('fermentationCurveChart', this.tanks[0].id, this.dataManager);
+                this.visualizer.renderMultiParameterDashboard('multiParameterChart', this.tanks[0].id, this.dataManager);
+                const collabPanel = document.getElementById('collaborationPanel');
+                if (collabPanel) {
+                    collabPanel.innerHTML = `<div id="comments-${this.tanks[0].id}"></div>`;
+                    this.collaboration.renderCommentsForTank(this.tanks[0].id);
+                }
             }
             
             // Subscribe to data changes
             this.dataManager.subscribe((tankId, data) => {
                 if (tankId === this.uiManager.currentTankId) {
                     this.uiManager.renderLog();
+                    this.visualizer.renderFermentationCurve('fermentationCurveChart', tankId, this.dataManager);
+                    this.visualizer.renderMultiParameterDashboard('multiParameterChart', tankId, this.dataManager);
                 }
                 this.uiManager.renderOverview();
             });
@@ -45,6 +60,13 @@ class FermentationTracker {
         // Tank selection
         ui.tankSelect?.addEventListener('change', (e) => {
             this.uiManager.selectTank(e.target.value);
+            this.visualizer.renderFermentationCurve('fermentationCurveChart', e.target.value, this.dataManager);
+            this.visualizer.renderMultiParameterDashboard('multiParameterChart', e.target.value, this.dataManager);
+            const collabPanel = document.getElementById('collaborationPanel');
+            if (collabPanel) {
+                collabPanel.innerHTML = `<div id="comments-${e.target.value}"></div>`;
+                this.collaboration.renderCommentsForTank(e.target.value);
+            }
         });
         
         // Variety input
@@ -368,6 +390,15 @@ class FermentationTracker {
                 </div>
             `;
         });
+    }
+
+    startAlertMonitoring() {
+        setInterval(() => {
+            if (this.tanks.length > 0) {
+                this.alertSystem.alerts = this.alertSystem.analyzeAllTanks(this.tanks);
+                this.alertSystem.renderAlertsPanel('alertsPanel');
+            }
+        }, 30000);
     }
 }
 

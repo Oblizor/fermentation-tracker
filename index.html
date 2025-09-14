@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winery Fermentation Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="enhanced-mobile.css">
 </head>
 <body>
     <header>
@@ -193,12 +194,56 @@
             <button id="importJsonBtn">Import JSON</button>
             <button id="importCsvBtn">Import CSV</button>
         </section>
+
+        <section class="fermentation-analytics">
+            <h2>Fermentation Analytics</h2>
+            <div class="analytics-grid">
+                <div class="chart-container">
+                    <canvas id="fermentationCurveChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="multiParameterChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="alerts-monitoring">
+            <div id="alertsPanel"></div>
+        </section>
+
+        <section class="team-collaboration">
+            <h2>Team Collaboration</h2>
+            <div id="collaborationPanel"></div>
+        </section>
+
+        <section class="advanced-reporting">
+            <h2>Professional Reporting</h2>
+            <div class="reporting-controls">
+                <label for="reportStartDate">Start Date:</label>
+                <input type="date" id="reportStartDate">
+                
+                <label for="reportEndDate">End Date:</label>
+                <input type="date" id="reportEndDate">
+                
+                <button id="generateReportBtn">Generate Report</button>
+                <button id="exportPDFBtn">Export PDF</button>
+            </div>
+        </section>
     </main>
 
+    <!-- External libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Application scripts -->
     <script src="dataManager.js"></script>
     <script src="calculations.js"></script>
     <script src="validator.js"></script>
     <script src="uiManager.js"></script>
+    <script src="visualizations.js"></script>
+    <script src="alertSystem.js"></script>
+    <script src="collaboration.js"></script>
+    <script src="reporting.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
