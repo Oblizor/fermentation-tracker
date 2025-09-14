@@ -85,13 +85,66 @@ class FermentationTracker {
         });
         
         // Sugar conversion
+        let updatingSugar = false;
+
+        const updateFromBaume = (baume) => {
+            const gl = FermentationCalculations.baumeToGL(baume);
+            ui.sugarGL.value = gl.toFixed(1);
+            if (ui.brix) {
+                ui.brix.value = FermentationCalculations.glToBrix(gl).toFixed(1);
+            }
+        };
+
+        const updateFromGL = (gl) => {
+            ui.sugar.value = FermentationCalculations.glToBaume(gl).toFixed(1);
+            if (ui.brix) {
+                ui.brix.value = FermentationCalculations.glToBrix(gl).toFixed(1);
+            }
+        };
+
+        const updateFromBrix = (brix) => {
+            const gl = FermentationCalculations.brixToGL(brix);
+            ui.sugarGL.value = gl.toFixed(1);
+            ui.sugar.value = FermentationCalculations.glToBaume(gl).toFixed(1);
+        };
+
         ui.sugar?.addEventListener('input', (e) => {
+            if (updatingSugar) return;
             const baume = parseFloat(e.target.value);
+            updatingSugar = true;
             if (!isNaN(baume)) {
-                ui.sugarGL.value = FermentationCalculations.baumeToGL(baume).toFixed(1);
+                updateFromBaume(baume);
             } else {
                 ui.sugarGL.value = '';
+                if (ui.brix) ui.brix.value = '';
             }
+            updatingSugar = false;
+        });
+
+        ui.sugarGL?.addEventListener('input', (e) => {
+            if (updatingSugar) return;
+            const gl = parseFloat(e.target.value);
+            updatingSugar = true;
+            if (!isNaN(gl)) {
+                updateFromGL(gl);
+            } else {
+                ui.sugar.value = '';
+                if (ui.brix) ui.brix.value = '';
+            }
+            updatingSugar = false;
+        });
+
+        ui.brix?.addEventListener('input', (e) => {
+            if (updatingSugar) return;
+            const brix = parseFloat(e.target.value);
+            updatingSugar = true;
+            if (!isNaN(brix)) {
+                updateFromBrix(brix);
+            } else {
+                ui.sugar.value = '';
+                ui.sugarGL.value = '';
+            }
+            updatingSugar = false;
         });
         
         // Log table actions

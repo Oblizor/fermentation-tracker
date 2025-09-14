@@ -25,6 +25,7 @@ class UIManager {
             temperature: document.getElementById('temperature'),
             sugar: document.getElementById('sugar'),
             sugarGL: document.getElementById('sugarGL'),
+            brix: document.getElementById('brix'),
             sg: document.getElementById('sg'),
             ph: document.getElementById('ph'),
             ta: document.getElementById('ta'),
@@ -279,7 +280,11 @@ class UIManager {
         
         // Update sugar conversion
         if (reading.sugar) {
-            this.elements.sugarGL.value = FermentationCalculations.baumeToGL(reading.sugar).toFixed(1);
+            const gl = FermentationCalculations.baumeToGL(reading.sugar);
+            this.elements.sugarGL.value = gl.toFixed(1);
+            if (this.elements.brix) {
+                this.elements.brix.value = FermentationCalculations.glToBrix(gl).toFixed(1);
+            }
         }
     }
 
@@ -304,6 +309,7 @@ class UIManager {
     resetForm() {
         this.elements.readingForm.reset();
         this.elements.sugarGL.value = '';
+        if (this.elements.brix) this.elements.brix.value = '';
         this.editingIndex = null;
         if (this.elements.submitBtn) {
             this.elements.submitBtn.textContent = 'Save Reading';
