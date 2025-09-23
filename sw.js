@@ -1,21 +1,25 @@
 const CACHE_NAME = 'winery-v2.0';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/enhanced-styles.css',
-    '/enhanced-dashboard.html',
-    '/batchManager.js',
-    '/labIntegration.js',
-    '/productionPlanner.js',
-    '/complianceManager.js',
-    '/aiAnalytics.js',
-    '/apiIntegration.js',
-    '/pwa.js',
-    '/app.js',
-    '/tanks.json',
-    '/manifest.json'
+const assetPaths = [
+    'index.html',
+    'style.css',
+    'enhanced-styles.css',
+    'enhanced-dashboard.html',
+    'batchManager.js',
+    'labIntegration.js',
+    'productionPlanner.js',
+    'complianceManager.js',
+    'aiAnalytics.js',
+    'apiIntegration.js',
+    'pwa.js',
+    'app.js',
+    'tanks.json',
+    'manifest.json'
 ];
+
+const baseScope = (self.registration && self.registration.scope)
+    ? self.registration.scope
+    : new URL('./', self.location.href).toString();
+const urlsToCache = assetPaths.map(path => new URL(path, baseScope).toString());
 
 self.addEventListener('install', event => {
     event.waitUntil(
