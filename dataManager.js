@@ -1,55 +1,114 @@
 // dataManager.js - All data operations in one place
 
-const FLEXIBLE_DATE_SEPARATOR = '[-/.]';
-const DATETIME_LOCAL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
-const DATETIME_WITH_TIME_PATTERN = new RegExp(`^(\\d{4})${FLEXIBLE_DATE_SEPARATOR}(\\d{1,2})${FLEXIBLE_DATE_SEPARATOR}(\\d{1,2})[T ](\\d{1,2}):(\\d{1,2})(?::(\\d{1,2})(?:\\.(\\d+))?)?$`);
-const DATE_ONLY_PATTERN = new RegExp(`^(\\d{4})${FLEXIBLE_DATE_SEPARATOR}(\\d{1,2})${FLEXIBLE_DATE_SEPARATOR}(\\d{1,2})$`);
-const DAY_FIRST_PATTERN = /^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})(?:[ T](\d{1,2}):(\d{1,2}))?$/;
-const TIMEZONE_SUFFIX_PATTERN = /[zZ]|[+-]\d{2}:?\d{2}$/;
+const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const ISO_LIKE_PATTERN = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[Tt ](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d+))?)?)?(?:\s*(Z|UTC|GMT|[+-]\d{2}:?\d{2}))?$/;
+const DAY_FIRST_PATTERN = /^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})(?:[Tt ](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d+))?)?)?(?:\s*(Z|UTC|GMT|[+-]\d{2}:?\d{2}))?$/;
 
-function pad(value) {
-    return String(value).padStart(2, '0');
+function pad(value, length = 2) {
+    return String(value).padStart(length, '0');
 }
 
 function isValidDate(date) {
     return date instanceof Date && !Number.isNaN(date.getTime());
 }
 
-function buildLocalDate(year, month, day, hours = '00', minutes = '00', seconds = '00') {
+function normalizeZone(zone) {
+    if (!zone) {
+        return null;
+    }
+
+    const normalized = zone.trim().toUpperCase();
+
+    if (normalized === 'Z' || normalized === 'UTC' || normalized === 'GMT') {
+        return 'Z';
+    }
+
+    if (/^[+-]\d{2}$/.test(normalized)) {
+        return `${normalized}:00`;
+    }
+
+    if (/^[+-]\d{4}$/.test(normalized)) {
+        return `${normalized.slice(0, 3)}:${normalized.slice(3)}`;
+    }
+
+    if (/^[+-]\d{2}:\d{2}$/.test(normalized)) {
+        return normalized;
+    }
+
+    return null;
+}
+
+function fractionToMilliseconds(fraction) {
+    if (!fraction) {
+        return 0;
+    }
+
+    const normalized = `${fraction}`.slice(0, 3).padEnd(3, '0');
+    return Number(normalized);
+}
+
+function buildDateFromParts(year, month, day, hours = '0', minutes = '0', seconds = '0', fraction = '', zone) {
     const numericYear = Number(year);
     const numericMonth = Number(month);
     const numericDay = Number(day);
     const numericHours = Number(hours);
     const numericMinutes = Number(minutes);
-    const numericSeconds = Number(seconds);
+    const numericSeconds = Number(seconds || 0);
+    const numericMilliseconds = fractionToMilliseconds(fraction);
 
-    const date = new Date(numericYear, numericMonth - 1, numericDay, numericHours, numericMinutes, numericSeconds);
-
-    if (!isValidDate(date)) {
+    const parts = [numericYear, numericMonth, numericDay, numericHours, numericMinutes, numericSeconds, numericMilliseconds];
+    if (parts.some(part => Number.isNaN(part))) {
         return null;
     }
 
-    const monthMatches = date.getMonth() === numericMonth - 1;
-    const dayMatches = date.getDate() === numericDay;
-    const hoursMatch = date.getHours() === numericHours;
-    const minutesMatch = date.getMinutes() === numericMinutes;
-    const secondsMatch = date.getSeconds() === numericSeconds;
+    if (zone) {
+        const normalizedZone = normalizeZone(zone);
+        if (!normalizedZone) {
+            return null;
+        }
 
-    if (!monthMatches || !dayMatches || !hoursMatch || !minutesMatch || !secondsMatch) {
+        const secondsPart = numericSeconds || fraction ? `:${pad(numericSeconds)}${fraction ? `.${fraction}` : ''}` : '';
+        const isoString = `${pad(numericYear, 4)}-${pad(numericMonth)}-${pad(numericDay)}T${pad(numericHours)}:${pad(numericMinutes)}${secondsPart}${normalizedZone}`;
+        const zonedDate = new Date(isoString);
+        return isValidDate(zonedDate) ? zonedDate : null;
+    }
+
+    const localDate = new Date(
+        numericYear,
+        numericMonth - 1,
+        numericDay,
+        numericHours,
+        numericMinutes,
+        numericSeconds,
+        numericMilliseconds
+    );
+
+    if (!isValidDate(localDate)) {
         return null;
     }
 
-    return date;
+    if (
+        localDate.getFullYear() !== numericYear ||
+        localDate.getMonth() !== numericMonth - 1 ||
+        localDate.getDate() !== numericDay ||
+        localDate.getHours() !== numericHours ||
+        localDate.getMinutes() !== numericMinutes ||
+        localDate.getSeconds() !== numericSeconds
+    ) {
+        return null;
+    }
+
+    return localDate;
 }
 
-function coerceToDate(input) {
+function tryParseDateLike(input) {
     if (input instanceof Date) {
         return isValidDate(input) ? new Date(input.getTime()) : null;
     }
 
     if (typeof input === 'number' && Number.isFinite(input)) {
-        const date = new Date(input);
-        return isValidDate(date) ? date : null;
+        const numericDate = new Date(input);
+        return isValidDate(numericDate) ? numericDate : null;
     }
 
     if (typeof input !== 'string') {
@@ -61,34 +120,26 @@ function coerceToDate(input) {
         return null;
     }
 
-    let match = trimmed.match(DATETIME_LOCAL_PATTERN);
+    let match = trimmed.match(ISO_LIKE_PATTERN);
     if (match) {
-        const [, year, month, day, hours, minutes] = match;
-        return buildLocalDate(year, month, day, hours, minutes);
-    }
-
-    match = trimmed.match(DATETIME_WITH_TIME_PATTERN);
-    if (match && !TIMEZONE_SUFFIX_PATTERN.test(trimmed)) {
-        const [, year, month, day, hours, minutes, seconds = '00'] = match;
-        return buildLocalDate(year, month, day, hours, minutes, seconds);
-    }
-
-    match = trimmed.match(DATE_ONLY_PATTERN);
-    if (match) {
-        const [, year, month, day] = match;
-        return buildLocalDate(year, month, day);
+        const [, year, month, day, hours = '0', minutes = '0', seconds = '0', fraction = '', zone] = match;
+        return buildDateFromParts(year, month, day, hours, minutes, seconds, fraction, zone);
     }
 
     match = trimmed.match(DAY_FIRST_PATTERN);
     if (match) {
-        const [, day, month, year, hours = '0', minutes = '0'] = match;
-        return buildLocalDate(year, month, day, hours, minutes);
+        const [, day, month, year, hours = '0', minutes = '0', seconds = '0', fraction = '', zone] = match;
+        return buildDateFromParts(year, month, day, hours, minutes, seconds, fraction, zone);
     }
 
-    const normalizedOffset = trimmed.replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
-    const parsed = new Date(normalizedOffset);
+    const normalized = trimmed
+        .replace(/\s+(UTC|GMT)$/i, 'Z')
+        .replace(/\s+(?=[+-]\d{2}:?\d{2}$)/, '')
+        .replace(/([+-]\d{2})(\d{2})$/, '$1:$2')
+        .replace(/\s+/, 'T');
 
-    return isValidDate(parsed) ? parsed : null;
+    const fallbackDate = new Date(normalized);
+    return isValidDate(fallbackDate) ? fallbackDate : null;
 }
 
 function toLocalDateTimeString(date) {
@@ -96,13 +147,9 @@ function toLocalDateTimeString(date) {
         return '';
     }
 
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    const offsetInMs = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - offsetInMs);
+    return localDate.toISOString().slice(0, 16);
 }
 
 function formatForDateTimeInput(input) {
@@ -119,27 +166,10 @@ function formatForDateTimeInput(input) {
         if (DATETIME_LOCAL_PATTERN.test(trimmed)) {
             return trimmed;
         }
-
-        const localMatch = trimmed.match(DATETIME_WITH_TIME_PATTERN);
-        if (localMatch && !TIMEZONE_SUFFIX_PATTERN.test(trimmed)) {
-            const [, year, month, day, hours, minutes] = localMatch;
-            return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}`;
-        }
-
-        const coerced = coerceToDate(trimmed);
-        if (coerced) {
-            return toLocalDateTimeString(coerced);
-        }
-
-        return '';
     }
 
-    const coerced = coerceToDate(input);
-    if (coerced) {
-        return toLocalDateTimeString(coerced);
-    }
-
-    return '';
+    const parsed = tryParseDateLike(input);
+    return parsed ? toLocalDateTimeString(parsed) : '';
 }
 
 if (typeof window !== 'undefined') {
