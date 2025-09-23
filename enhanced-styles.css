@@ -285,6 +285,44 @@
     color: white;
 }
 
+#scannerModal .modal-content {
+    width: min(480px, 90vw);
+    text-align: center;
+}
+
+#scannerVideo {
+    width: min(480px, 100%);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#scanResult {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.scan-message {
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+    line-height: 1.4;
+}
+
+.scan-message.success {
+    background: rgba(46, 125, 50, 0.35);
+}
+
+.scan-message.error {
+    background: rgba(183, 28, 28, 0.35);
+}
+
+.scan-message.info {
+    background: rgba(255, 255, 255, 0.18);
+}
+
 @media (max-width: 1024px) {
     .dashboard-container {
         flex-direction: column;
