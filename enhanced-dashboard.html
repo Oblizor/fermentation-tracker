@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winery Management System</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="enhanced-styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar glass-card">
+            <div class="logo">
+                <img src="winery-logo.svg" alt="Winery" width="64" height="64">
+                <h2>VineTrack Pro</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active"><span>Dashboard</span></li>
+                <li class="nav-item"><span>Tanks</span></li>
+                <li class="nav-item"><span>Batches</span></li>
+                <li class="nav-item"><span>Laboratory</span></li>
+                <li class="nav-item"><span>Production</span></li>
+                <li class="nav-item"><span>Analytics</span></li>
+                <li class="nav-item"><span>Settings</span></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header glass-card">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search batches, tanks, or wines...">
+                    <button class="btn-search">🔍</button>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn-scan" onclick="openBarcodeScanner()">📷 Scan</button>
+                    <button class="btn-add-reading" onclick="quickAddReading()">➕ Quick Add</button>
+                    <button class="btn-notifications">🔔 <span class="badge">3</span></button>
+                </div>
+                <div class="user-profile">
+                    <img src="user-avatar.jpg" alt="User" width="48" height="48">
+                    <span>Winemaker</span>
+                </div>
+            </header>
+
+            <div class="kpi-grid">
+                <div class="kpi-card glass-card">
+                    <div class="kpi-icon">🍇</div>
+                    <div class="kpi-content">
+                        <h3>Active Fermentations</h3>
+                        <p class="kpi-value" id="kpiFermentations">0</p>
+                        <span class="kpi-trend positive" id="kpiFermentationTrend"></span>
+                    </div>
+                </div>
+                <div class="kpi-card glass-card">
+                    <div class="kpi-icon">🏺</div>
+                    <div class="kpi-content">
+                        <h3>Total Volume</h3>
+                        <p class="kpi-value" id="kpiVolume">0 L</p>
+                        <span class="kpi-trend" id="kpiCapacity"></span>
+                    </div>
+                </div>
+                <div class="kpi-card glass-card">
+                    <div class="kpi-icon">⚗️</div>
+                    <div class="kpi-content">
+                        <h3>Lab Samples Today</h3>
+                        <p class="kpi-value" id="kpiLabSamples">0</p>
+                        <span class="kpi-trend" id="kpiLabPending"></span>
+                    </div>
+                </div>
+                <div class="kpi-card glass-card">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-content">
+                        <h3>Quality Score</h3>
+                        <p class="kpi-value" id="kpiQuality">0</p>
+                        <span class="kpi-trend positive" id="kpiQualityTrend"></span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="cellar-map glass-card">
+                <h2>Cellar Overview</h2>
+                <div class="cellar-controls">
+                    <select id="cellarView">
+                        <option value="status">By Status</option>
+                        <option value="variety">By Variety</option>
+                        <option value="temperature">By Temperature</option>
+                    </select>
+                    <button onclick="toggleCellar3D()">3D View</button>
+                </div>
+                <div id="cellarVisualization"></div>
+            </section>
+
+            <section class="monitoring-grid">
+                <div class="monitor-card glass-card">
+                    <h3>Temperature Monitoring</h3>
+                    <canvas id="tempMonitorChart"></canvas>
+                </div>
+                <div class="monitor-card glass-card">
+                    <h3>Fermentation Progress</h3>
+                    <div id="fermentationProgress"></div>
+                </div>
+                <div class="monitor-card glass-card">
+                    <h3>Recent Activities</h3>
+                    <div class="activity-feed" id="activityFeed"></div>
+                </div>
+            </section>
+
+            <section class="batch-timeline-section glass-card">
+                <h2>Production Timeline</h2>
+                <div class="batch-timeline" id="productionTimeline">
+                    <div class="timeline-line"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="quickAddModal" class="modal">
+        <div class="modal-content glass-card">
+            <h2>Quick Reading</h2>
+            <form id="quickReadingForm">
+                <select id="quickTank" required></select>
+                <input type="number" id="quickTemp" placeholder="Temperature (°C)" step="0.1">
+                <input type="number" id="quickSugar" placeholder="Sugar (Baumé)" step="0.1">
+                <input type="number" id="quickPH" placeholder="pH" step="0.01">
+                <button type="submit">Save</button>
+                <button type="button" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="modal">
+        <div class="modal-content">
+            <video id="scannerVideo" autoplay muted playsinline></video>
+            <div id="scanResult"></div>
+            <button onclick="closeScannerModal()">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dataManager.js"></script>
+    <script src="batchManager.js"></script>
+    <script src="labIntegration.js"></script>
+    <script src="productionPlanner.js"></script>
+    <script src="complianceManager.js"></script>
+    <script src="aiAnalytics.js"></script>
+    <script src="apiIntegration.js"></script>
+    <script src="pwa.js"></script>
+    <script src="enhanced-app.js"></script>
+</body>
+</html>
