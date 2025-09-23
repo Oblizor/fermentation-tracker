@@ -2,6 +2,13 @@
 class FermentationTracker {
     constructor() {
         this.dataManager = new DataManager();
+        this.batchManager = typeof BatchManager !== 'undefined' ? new BatchManager(this.dataManager) : null;
+        this.labIntegration = typeof LabIntegration !== 'undefined' ? new LabIntegration(this.batchManager) : null;
+        this.productionPlanner = typeof ProductionPlanner !== 'undefined' ? new ProductionPlanner() : null;
+        this.complianceManager = typeof ComplianceManager !== 'undefined' ? new ComplianceManager(this.batchManager) : null;
+        this.aiAnalytics = typeof AIAnalytics !== 'undefined' ? new AIAnalytics(this.batchManager) : null;
+        this.apiIntegration = typeof APIIntegration !== 'undefined' ? new APIIntegration(this.batchManager) : null;
+        this.pwaManager = typeof PWAManager !== 'undefined' ? new PWAManager() : null;
         this.uiManager = new UIManager(this.dataManager);
         this.visualizer = new VisualizationEngine();
         this.alertSystem = new FermentationAlertSystem(this.dataManager);
@@ -12,6 +19,12 @@ class FermentationTracker {
         this.initializeCalculators();
         this.startAlertMonitoring();
         window.collaboration = this.collaboration;
+        if (this.batchManager) window.batchManager = this.batchManager;
+        if (this.labIntegration) window.labIntegration = this.labIntegration;
+        if (this.productionPlanner) window.productionPlanner = this.productionPlanner;
+        if (this.complianceManager) window.complianceManager = this.complianceManager;
+        if (this.aiAnalytics) window.aiAnalytics = this.aiAnalytics;
+        if (this.apiIntegration) window.apiIntegration = this.apiIntegration;
     }
 
     async init() {
@@ -200,13 +213,31 @@ class FermentationTracker {
         
         if (this.uiManager.editingIndex !== null) {
             this.dataManager.updateReading(tankId, this.uiManager.editingIndex, validation.data);
+            this.recordBatchHistory(tankId, validation.data, 'update');
             this.uiManager.showSuccess('Reading updated successfully');
         } else {
             this.dataManager.addReading(tankId, validation.data);
+            this.recordBatchHistory(tankId, validation.data, 'reading');
             this.uiManager.showSuccess('Reading saved successfully');
         }
-        
+
         this.uiManager.resetForm();
+    }
+
+    recordBatchHistory(tankId, data, type) {
+        if (!this.batchManager) {
+            return;
+        }
+        const batch = this.batchManager.ensureBatchForTank(tankId, { volume: data.volume ?? null });
+        if (Number.isFinite(data.volume)) {
+            batch.currentVolume = data.volume;
+        }
+        batch.history.push({
+            type,
+            data,
+            timestamp: data.timestamp ?? new Date().toISOString()
+        });
+        this.batchManager.saveBatches();
     }
 
     handleEdit(index) {
