@@ -1,48 +1,82 @@
 // dataManager.js - All data operations in one place
 
+const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const DATETIME_WITH_TIME_PATTERN = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?$/;
+
+function toLocalDateTimeString(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const offsetMs = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - offsetMs);
+    return localDate.toISOString().slice(0, 16);
+}
+
 function formatForDateTimeInput(input) {
     if (input === null || input === undefined) {
         return '';
     }
 
-    let parsed;
-
-    if (input instanceof Date) {
-        parsed = input;
-    } else if (typeof input === 'number') {
-        parsed = new Date(input);
-    } else if (typeof input === 'string') {
+    if (typeof input === 'string') {
         const trimmed = input.trim();
         if (!trimmed) {
             return '';
         }
-        parsed = new Date(trimmed);
-        if (Number.isNaN(parsed.getTime())) {
-            const partial = trimmed.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
-            return partial ? `${partial[1]}T${partial[2]}` : '';
+
+        // If already in datetime-local format, return as is
+        if (DATETIME_LOCAL_PATTERN.test(trimmed)) {
+            return trimmed;
         }
-    } else {
+
+        // Check for datetime with time pattern (no timezone)
+        const localMatch = trimmed.match(DATETIME_WITH_TIME_PATTERN);
+        const hasZone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(trimmed);
+        if (localMatch && !hasZone) {
+            return `${localMatch[1]}T${localMatch[2]}`;
+        }
+
+        // Try parsing as date
+        const parsed = new Date(trimmed);
+        if (!Number.isNaN(parsed.getTime())) {
+            return toLocalDateTimeString(parsed);
+        }
+
         return '';
     }
 
-    if (Number.isNaN(parsed.getTime())) {
-        return '';
+    if (input instanceof Date) {
+        return toLocalDateTimeString(input);
     }
 
-    const pad = (num) => String(num).padStart(2, '0');
+    if (typeof input === 'number' && Number.isFinite(input)) {
+        return toLocalDateTimeString(new Date(input));
+    }
 
-    const year = parsed.getFullYear();
-    const month = pad(parsed.getMonth() + 1);
-    const day = pad(parsed.getDate());
-    const hours = pad(parsed.getHours());
-    const minutes = pad(parsed.getMinutes());
+    return '';
+}
 
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+if (typeof window !== 'undefined') {
+    window.formatForDateTimeInput = formatForDateTimeInput;
 }
 
 class DataManager {
     constructor() {
         this.cache = new Map();
+        this.subscribers = [];
+    }
+
+    normalizeReading(entry) {
+        if (!entry || typeof entry !== 'object') {
+            return entry;
+        }
+
+        const normalizedTimestamp = formatForDateTimeInput(entry.timestamp);
+        if (normalizedTimestamp) {
+            return { ...entry, timestamp: normalizedTimestamp };
+        }
+
+        return { ...entry };
     }
 
     getTankData(tankId) {
@@ -72,14 +106,14 @@ class DataManager {
 
     addReading(tankId, reading) {
         const data = this.getTankData(tankId);
-        data.push(reading);
+        data.push(this.normalizeReading(reading));
         this.saveTankData(tankId, data);
     }
 
     updateReading(tankId, index, reading) {
         const data = this.getTankData(tankId);
         if (index >= 0 && index < data.length) {
-            data[index] = reading;
+            data[index] = this.normalizeReading(reading);
             this.saveTankData(tankId, data);
         }
     }
@@ -105,14 +139,7 @@ class DataManager {
         const existing = this.getTankData(tankId);
         const map = new Map();
 
-        const normalizeEntry = (entry) => {
-            if (!entry) return entry;
-            const normalizedTimestamp = formatForDateTimeInput(entry.timestamp);
-            if (normalizedTimestamp) {
-                return { ...entry, timestamp: normalizedTimestamp };
-            }
-            return { ...entry };
-        };
+        const normalizeEntry = (entry) => this.normalizeReading(entry);
 
         // Existing entries
         existing.forEach(entry => {
@@ -185,8 +212,6 @@ class DataManager {
     }
 
     // Observer pattern for data changes
-    subscribers = [];
-
     subscribe(callback) {
         this.subscribers.push(callback);
     }

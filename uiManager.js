@@ -290,8 +290,10 @@ class UIManager {
     }
 
     getFormData() {
+        const rawTimestamp = this.elements.timestamp.value;
+        const formattedTimestamp = formatForDateTimeInput(rawTimestamp);
         const data = {
-            timestamp: this.elements.timestamp.value
+            timestamp: formattedTimestamp || rawTimestamp
         };
         
         // Collect optional numeric fields
