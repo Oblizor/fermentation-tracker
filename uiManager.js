@@ -311,9 +311,6 @@ class UIManager {
 
     resetForm() {
         this.elements.readingForm.reset();
-        if (this.elements.timestamp) {
-            this.elements.timestamp.value = formatForDateTimeInput(new Date());
-        }
         this.elements.sugarGL.value = '';
         if (this.elements.brix) this.elements.brix.value = '';
         this.editingIndex = null;
