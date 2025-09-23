@@ -24,16 +24,19 @@ function formatForDateTimeInput(input) {
             return '';
         }
 
+        // If already in datetime-local format, return as is
         if (DATETIME_LOCAL_PATTERN.test(trimmed)) {
             return trimmed;
         }
 
+        // Check for datetime with time pattern (no timezone)
         const localMatch = trimmed.match(DATETIME_WITH_TIME_PATTERN);
         const hasZone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(trimmed);
         if (localMatch && !hasZone) {
             return `${localMatch[1]}T${localMatch[2]}`;
         }
 
+        // Try parsing as date
         const parsed = new Date(trimmed);
         if (!Number.isNaN(parsed.getTime())) {
             return toLocalDateTimeString(parsed);
@@ -60,6 +63,7 @@ if (typeof window !== 'undefined') {
 class DataManager {
     constructor() {
         this.cache = new Map();
+        this.subscribers = [];
     }
 
     normalizeReading(entry) {
@@ -208,8 +212,6 @@ class DataManager {
     }
 
     // Observer pattern for data changes
-    subscribers = [];
-
     subscribe(callback) {
         this.subscribers.push(callback);
     }
