@@ -6,6 +6,7 @@
     <title>Winery Fermentation Tracker</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="enhanced-mobile.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
     <header>
@@ -57,7 +58,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="timestamp">Date & Time</label>
-                        <input type="datetime-local" id="timestamp" required>
+                       <input type="text" id="timestamp" required>
                     </div>
                     <div class="form-group">
                         <label for="temperature">Temperature (°C)</label>
@@ -249,5 +250,19 @@
     <script src="collaboration.js"></script>
     <script src="reporting.js"></script>
     <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  flatpickr("#timestamp", {
+    // This enables the time picker as well as the date picker
+    enableTime: true,
+    // This is the format the server needs
+    dateFormat: "Y-m-d H:i",
+    // This enables the alternate, user-friendly format
+    altInput: true,
+    // This is the format you will see: "day/month/year hour:minute"
+    altFormat: "d/m/Y H:i",
+    placeholder: "dd/mm/yyyy --:--",
+  });
+</script>
 </body>
 </html>
