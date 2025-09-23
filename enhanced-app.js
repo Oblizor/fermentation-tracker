@@ -10,6 +10,11 @@ class EnhancedDashboardApp {
         this.pwaManager = typeof PWAManager !== 'undefined' ? new PWAManager() : null;
         this.tanks = [];
         this.scannerStream = null;
+        this.scanFrameRequest = null;
+        this.scannerActive = false;
+        this.lastScanData = null;
+        this.scanResultElement = null;
+        this.lastScanAttempt = 0;
         this.tempChart = null;
     }
 
@@ -217,16 +222,30 @@ class EnhancedDashboardApp {
         const modal = document.getElementById('scannerModal');
         if (!modal) return;
         modal.classList.add('show');
-        if (navigator.mediaDevices?.getUserMedia) {
-            try {
-                this.scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                const video = document.getElementById('scannerVideo');
-                if (video) {
-                    video.srcObject = this.scannerStream;
+        this.scanResultElement = document.getElementById('scanResult');
+        this.lastScanData = null;
+        this.updateScanResult('Align barcode within the frame to scan.', 'info');
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+            this.updateScanResult('Camera access is not supported on this device.', 'error');
+            return;
+        }
+
+        try {
+            this.scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            const video = document.getElementById('scannerVideo');
+            if (video) {
+                video.srcObject = this.scannerStream;
+                await video.play().catch(() => undefined);
+                if (this.pwaManager?.barcodeDetector) {
+                    this.startBarcodeDetection(video);
+                } else {
+                    this.updateScanResult('Barcode detection is not available in this browser.', 'error');
                 }
-            } catch (error) {
-                console.error('Camera access denied', error);
             }
+        } catch (error) {
+            console.error('Camera access denied', error);
+            this.updateScanResult('Unable to access camera for scanning.', 'error');
         }
     }
 
@@ -235,10 +254,116 @@ class EnhancedDashboardApp {
         if (modal) {
             modal.classList.remove('show');
         }
+        this.stopBarcodeDetection();
         if (this.scannerStream) {
             this.scannerStream.getTracks().forEach(track => track.stop());
             this.scannerStream = null;
         }
+        if (this.scanResultElement) {
+            this.scanResultElement.innerHTML = '';
+        }
+        this.scanResultElement = null;
+    }
+
+    updateScanResult(message, variant = 'info') {
+        if (!this.scanResultElement) {
+            return;
+        }
+        if (!message) {
+            this.scanResultElement.innerHTML = '';
+            return;
+        }
+        this.scanResultElement.innerHTML = `<div class="scan-message ${variant}">${message}</div>`;
+    }
+
+    startBarcodeDetection(videoElement) {
+        if (!this.pwaManager?.barcodeDetector) {
+            this.updateScanResult('Barcode detection is not supported.', 'error');
+            return;
+        }
+
+        this.scannerActive = true;
+
+        const scanFrame = async () => {
+            if (!this.scannerActive) {
+                return;
+            }
+            const requiredReadyState = typeof HTMLMediaElement !== 'undefined'
+                ? HTMLMediaElement.HAVE_CURRENT_DATA
+                : 2;
+            if (videoElement.readyState < requiredReadyState) {
+                this.scanFrameRequest = requestAnimationFrame(scanFrame);
+                return;
+            }
+
+            const now = typeof performance !== 'undefined' && typeof performance.now === 'function'
+                ? performance.now()
+                : Date.now();
+            if (now - this.lastScanAttempt < 300) {
+                this.scanFrameRequest = requestAnimationFrame(scanFrame);
+                return;
+            }
+            this.lastScanAttempt = now;
+
+            try {
+                const detections = await this.pwaManager.scanBarcode(videoElement);
+                if (detections && detections.length > 0) {
+                    const primary = detections[0];
+                    if (primary.data && primary.data !== this.lastScanData) {
+                        this.lastScanData = primary.data;
+                        this.displayScanResults(primary);
+                    }
+                }
+            } catch (error) {
+                console.error('Barcode detection error', error);
+                this.updateScanResult('Unable to process barcode. Ensure the code is well lit.', 'error');
+            }
+
+            if (this.scannerActive) {
+                this.scanFrameRequest = requestAnimationFrame(scanFrame);
+            }
+        };
+
+        this.scanFrameRequest = requestAnimationFrame(scanFrame);
+    }
+
+    stopBarcodeDetection() {
+        this.scannerActive = false;
+        if (this.scanFrameRequest) {
+            cancelAnimationFrame(this.scanFrameRequest);
+            this.scanFrameRequest = null;
+        }
+        this.lastScanData = null;
+        this.lastScanAttempt = 0;
+    }
+
+    displayScanResults(detection) {
+        if (!this.scanResultElement) {
+            return;
+        }
+
+        let batchDetails = '';
+        if (this.batchManager) {
+            const batches = this.batchManager.getAllBatches();
+            const matched = batches.find(batch => batch.id === detection.data || batch.qrCode === detection.data);
+            if (matched) {
+                const volumeLiters = matched.currentVolume ?? matched.initialVolume ?? 0;
+                batchDetails = `
+                    <p>Batch: <strong>${matched.variety ?? 'Unknown'} ${matched.vintage ?? ''}</strong></p>
+                    <p>Tank: ${matched.currentTank ?? 'N/A'} &bull; Volume: ${volumeLiters.toLocaleString()} L</p>
+                `;
+            } else {
+                batchDetails = '<p>No matching batch found in local records.</p>';
+            }
+        }
+
+        this.scanResultElement.innerHTML = `
+            <div class="scan-message success">
+                <p><strong>${detection.type.toUpperCase()}</strong> detected</p>
+                <p>${detection.data}</p>
+                ${batchDetails}
+            </div>
+        `;
     }
 
     quickAdd() {
