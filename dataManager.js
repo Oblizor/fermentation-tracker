@@ -2,6 +2,7 @@
 
 const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 const DATETIME_WITH_TIME_PATTERN = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?$/;
+const DAY_FIRST_PATTERN = /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?(?:\s*([zZ]|[+-]\d{2}:?\d{2}))?$/;
 
 function toLocalDateTimeString(date) {
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
@@ -34,6 +35,37 @@ function formatForDateTimeInput(input) {
         const hasZone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(trimmed);
         if (localMatch && !hasZone) {
             return `${localMatch[1]}T${localMatch[2]}`;
+        }
+
+        // Handle day-first formats (DD/MM/YYYY or DD-MM-YYYY)
+        const dayFirstMatch = trimmed.match(DAY_FIRST_PATTERN);
+        if (dayFirstMatch) {
+            const [, day, month, year, hour = '00', minute = '00', second = '00', fraction, zone] = dayFirstMatch;
+            const pad2 = (value) => String(value).padStart(2, '0');
+            const datePart = `${year}-${pad2(month)}-${pad2(day)}`;
+            const timePart = `${pad2(hour)}:${pad2(minute)}:${pad2(second)}`;
+
+            let isoString = `${datePart}T${timePart}`;
+            if (fraction) {
+                isoString += `.${fraction}`;
+            }
+
+            if (zone) {
+                if (/[zZ]/.test(zone)) {
+                    isoString += 'Z';
+                } else {
+                    const sign = zone[0];
+                    const digits = zone.slice(1).replace(':', '');
+                    const hours = digits.slice(0, 2) || '00';
+                    const minutes = digits.slice(2) || '00';
+                    isoString += `${sign}${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+                }
+            }
+
+            const parsedDayFirst = new Date(isoString);
+            if (!Number.isNaN(parsedDayFirst.getTime())) {
+                return toLocalDateTimeString(parsedDayFirst);
+            }
         }
 
         // Try parsing as date
