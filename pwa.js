@@ -18,7 +18,7 @@ class PWAManager {
             return;
         }
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            const registration = await navigator.serviceWorker.register('sw.js', { scope: './' });
             this.swRegistration = registration;
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
