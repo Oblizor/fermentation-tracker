@@ -408,7 +408,7 @@ class FermentationTracker {
                 }
                 
                 this.dataManager.addReading(tankId, {
-                    timestamp: new Date().toISOString(),
+                    timestamp: formatForDateTimeInput(new Date()),
                     notes: `${calc.name}: ${calc.latestAmount.toFixed(2)} g`
                 });
                 

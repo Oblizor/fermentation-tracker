@@ -269,7 +269,8 @@ class UIManager {
     }
 
     loadFormData(reading) {
-        this.elements.timestamp.value = reading.timestamp;
+        const formattedTimestamp = formatForDateTimeInput(reading.timestamp);
+        this.elements.timestamp.value = formattedTimestamp || '';
         this.elements.temperature.value = reading.temperature ?? '';
         this.elements.sugar.value = reading.sugar ?? '';
         this.elements.sg.value = reading.sg ?? '';
@@ -289,8 +290,10 @@ class UIManager {
     }
 
     getFormData() {
+        const rawTimestamp = this.elements.timestamp.value;
+        const formattedTimestamp = formatForDateTimeInput(rawTimestamp);
         const data = {
-            timestamp: this.elements.timestamp.value
+            timestamp: formattedTimestamp || rawTimestamp
         };
         
         // Collect optional numeric fields
@@ -308,6 +311,9 @@ class UIManager {
 
     resetForm() {
         this.elements.readingForm.reset();
+        if (this.elements.timestamp) {
+            this.elements.timestamp.value = formatForDateTimeInput(new Date());
+        }
         this.elements.sugarGL.value = '';
         if (this.elements.brix) this.elements.brix.value = '';
         this.editingIndex = null;
