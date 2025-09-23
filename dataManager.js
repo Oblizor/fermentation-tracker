@@ -1,157 +1,15 @@
 // dataManager.js - All data operations in one place
 
 const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
-const ISO_LIKE_PATTERN = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[Tt ](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d+))?)?)?(?:\s*(Z|UTC|GMT|[+-]\d{2}:?\d{2}))?$/;
-const DAY_FIRST_PATTERN = /^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})(?:[Tt ](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d+))?)?)?(?:\s*(Z|UTC|GMT|[+-]\d{2}:?\d{2}))?$/;
-
-function pad(value, length = 2) {
-    return String(value).padStart(length, '0');
-}
-
-function isValidDate(date) {
-    return date instanceof Date && !Number.isNaN(date.getTime());
-}
-
-function normalizeZone(zone) {
-    if (!zone) {
-        return null;
-    }
-
-    const normalized = zone.trim().toUpperCase();
-
-    if (normalized === 'Z' || normalized === 'UTC' || normalized === 'GMT') {
-        return 'Z';
-    }
-
-    if (/^[+-]\d{2}$/.test(normalized)) {
-        return `${normalized}:00`;
-    }
-
-    if (/^[+-]\d{4}$/.test(normalized)) {
-        return `${normalized.slice(0, 3)}:${normalized.slice(3)}`;
-    }
-
-    if (/^[+-]\d{2}:\d{2}$/.test(normalized)) {
-        return normalized;
-    }
-
-    return null;
-}
-
-function fractionToMilliseconds(fraction) {
-    if (!fraction) {
-        return 0;
-    }
-
-    const normalized = `${fraction}`.slice(0, 3).padEnd(3, '0');
-    return Number(normalized);
-}
-
-function buildDateFromParts(year, month, day, hours = '0', minutes = '0', seconds = '0', fraction = '', zone) {
-    const numericYear = Number(year);
-    const numericMonth = Number(month);
-    const numericDay = Number(day);
-    const numericHours = Number(hours);
-    const numericMinutes = Number(minutes);
-    const numericSeconds = Number(seconds || 0);
-    const numericMilliseconds = fractionToMilliseconds(fraction);
-
-    const parts = [numericYear, numericMonth, numericDay, numericHours, numericMinutes, numericSeconds, numericMilliseconds];
-    if (parts.some(part => Number.isNaN(part))) {
-        return null;
-    }
-
-    if (zone) {
-        const normalizedZone = normalizeZone(zone);
-        if (!normalizedZone) {
-            return null;
-        }
-
-        const secondsPart = numericSeconds || fraction ? `:${pad(numericSeconds)}${fraction ? `.${fraction}` : ''}` : '';
-        const isoString = `${pad(numericYear, 4)}-${pad(numericMonth)}-${pad(numericDay)}T${pad(numericHours)}:${pad(numericMinutes)}${secondsPart}${normalizedZone}`;
-        const zonedDate = new Date(isoString);
-        return isValidDate(zonedDate) ? zonedDate : null;
-    }
-
-    const localDate = new Date(
-        numericYear,
-        numericMonth - 1,
-        numericDay,
-        numericHours,
-        numericMinutes,
-        numericSeconds,
-        numericMilliseconds
-    );
-
-    if (!isValidDate(localDate)) {
-        return null;
-    }
-
-    if (
-        localDate.getFullYear() !== numericYear ||
-        localDate.getMonth() !== numericMonth - 1 ||
-        localDate.getDate() !== numericDay ||
-        localDate.getHours() !== numericHours ||
-        localDate.getMinutes() !== numericMinutes ||
-        localDate.getSeconds() !== numericSeconds
-    ) {
-        return null;
-    }
-
-    return localDate;
-}
-
-function tryParseDateLike(input) {
-    if (input instanceof Date) {
-        return isValidDate(input) ? new Date(input.getTime()) : null;
-    }
-
-    if (typeof input === 'number' && Number.isFinite(input)) {
-        const numericDate = new Date(input);
-        return isValidDate(numericDate) ? numericDate : null;
-    }
-
-    if (typeof input !== 'string') {
-        return null;
-    }
-
-    const trimmed = input.trim();
-    if (!trimmed) {
-        return null;
-    }
-
-    // Try dd/mm/yyyy format first (your preferred format)
-    let match = trimmed.match(DAY_FIRST_PATTERN);
-    if (match) {
-        const [, day, month, year, hours = '0', minutes = '0', seconds = '0', fraction = '', zone] = match;
-        return buildDateFromParts(year, month, day, hours, minutes, seconds, fraction, zone);
-    }
-
-    // Fall back to ISO-like format (yyyy-mm-dd)
-    match = trimmed.match(ISO_LIKE_PATTERN);
-    if (match) {
-        const [, year, month, day, hours = '0', minutes = '0', seconds = '0', fraction = '', zone] = match;
-        return buildDateFromParts(year, month, day, hours, minutes, seconds, fraction, zone);
-    }
-
-    // Try native Date parsing as last resort
-    const normalized = trimmed
-        .replace(/\s+(UTC|GMT)$/i, 'Z')
-        .replace(/\s+(?=[+-]\d{2}:?\d{2}$)/, '')
-        .replace(/([+-]\d{2})(\d{2})$/, '$1:$2')
-        .replace(/\s+/, 'T');
-
-    const fallbackDate = new Date(normalized);
-    return isValidDate(fallbackDate) ? fallbackDate : null;
-}
+const DATETIME_WITH_TIME_PATTERN = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?$/;
 
 function toLocalDateTimeString(date) {
-    if (!isValidDate(date)) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
         return '';
     }
 
-    const offsetInMs = date.getTimezoneOffset() * 60000;
-    const localDate = new Date(date.getTime() - offsetInMs);
+    const offsetMs = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - offsetMs);
     return localDate.toISOString().slice(0, 16);
 }
 
@@ -166,48 +24,40 @@ function formatForDateTimeInput(input) {
             return '';
         }
 
+        // If already in datetime-local format, return as is
         if (DATETIME_LOCAL_PATTERN.test(trimmed)) {
             return trimmed;
         }
-    }
 
-    const parsed = tryParseDateLike(input);
-    return parsed ? toLocalDateTimeString(parsed) : '';
-}
+        // Check for datetime with time pattern (no timezone)
+        const localMatch = trimmed.match(DATETIME_WITH_TIME_PATTERN);
+        const hasZone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(trimmed);
+        if (localMatch && !hasZone) {
+            return `${localMatch[1]}T${localMatch[2]}`;
+        }
 
-// Helper function to format date for display in dd/mm/yyyy format
-function formatDateForDisplay(date) {
-    if (!isValidDate(date)) {
+        // Try parsing as date
+        const parsed = new Date(trimmed);
+        if (!Number.isNaN(parsed.getTime())) {
+            return toLocalDateTimeString(parsed);
+        }
+
         return '';
     }
-    
-    const day = pad(date.getDate());
-    const month = pad(date.getMonth() + 1);
-    const year = date.getFullYear();
-    
-    return `${day}/${month}/${year}`;
-}
 
-// Helper function to format datetime for display in dd/mm/yyyy HH:mm format
-function formatDateTimeForDisplay(date) {
-    if (!isValidDate(date)) {
-        return '';
+    if (input instanceof Date) {
+        return toLocalDateTimeString(input);
     }
-    
-    const day = pad(date.getDate());
-    const month = pad(date.getMonth() + 1);
-    const year = date.getFullYear();
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+
+    if (typeof input === 'number' && Number.isFinite(input)) {
+        return toLocalDateTimeString(new Date(input));
+    }
+
+    return '';
 }
 
 if (typeof window !== 'undefined') {
     window.formatForDateTimeInput = formatForDateTimeInput;
-    window.formatDateForDisplay = formatDateForDisplay;
-    window.formatDateTimeForDisplay = formatDateTimeForDisplay;
-    window.tryParseDateLike = tryParseDateLike;
 }
 
 class DataManager {
