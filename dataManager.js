@@ -1,4 +1,45 @@
 // dataManager.js - All data operations in one place
+
+function formatForDateTimeInput(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+
+    let parsed;
+
+    if (input instanceof Date) {
+        parsed = input;
+    } else if (typeof input === 'number') {
+        parsed = new Date(input);
+    } else if (typeof input === 'string') {
+        const trimmed = input.trim();
+        if (!trimmed) {
+            return '';
+        }
+        parsed = new Date(trimmed);
+        if (Number.isNaN(parsed.getTime())) {
+            const partial = trimmed.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
+            return partial ? `${partial[1]}T${partial[2]}` : '';
+        }
+    } else {
+        return '';
+    }
+
+    if (Number.isNaN(parsed.getTime())) {
+        return '';
+    }
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const year = parsed.getFullYear();
+    const month = pad(parsed.getMonth() + 1);
+    const day = pad(parsed.getDate());
+    const hours = pad(parsed.getHours());
+    const minutes = pad(parsed.getMinutes());
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 class DataManager {
     constructor() {
         this.cache = new Map();
@@ -63,13 +104,40 @@ class DataManager {
     mergeReadings(tankId, imported) {
         const existing = this.getTankData(tankId);
         const map = new Map();
-        
+
+        const normalizeEntry = (entry) => {
+            if (!entry) return entry;
+            const normalizedTimestamp = formatForDateTimeInput(entry.timestamp);
+            if (normalizedTimestamp) {
+                return { ...entry, timestamp: normalizedTimestamp };
+            }
+            return { ...entry };
+        };
+
         // Existing entries
-        existing.forEach(entry => map.set(entry.timestamp, entry));
-        
+        existing.forEach(entry => {
+            const normalized = normalizeEntry(entry);
+            if (!normalized) {
+                return;
+            }
+            const key = normalized.timestamp ?? entry?.timestamp;
+            if (key) {
+                map.set(key, normalized);
+            }
+        });
+
         // Imported entries (overwrite if same timestamp)
-        imported.forEach(entry => map.set(entry.timestamp, entry));
-        
+        imported.forEach(entry => {
+            const normalized = normalizeEntry(entry);
+            if (!normalized) {
+                return;
+            }
+            const key = normalized.timestamp ?? entry?.timestamp;
+            if (key) {
+                map.set(key, normalized);
+            }
+        });
+
         const merged = Array.from(map.values());
         this.saveTankData(tankId, merged);
         return merged;

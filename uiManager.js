@@ -269,7 +269,8 @@ class UIManager {
     }
 
     loadFormData(reading) {
-        this.elements.timestamp.value = reading.timestamp;
+        const formattedTimestamp = formatForDateTimeInput(reading.timestamp);
+        this.elements.timestamp.value = formattedTimestamp || '';
         this.elements.temperature.value = reading.temperature ?? '';
         this.elements.sugar.value = reading.sugar ?? '';
         this.elements.sg.value = reading.sg ?? '';
