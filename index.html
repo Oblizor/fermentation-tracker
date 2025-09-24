@@ -3,273 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winery Fermentation Tracker</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="enhanced-mobile.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <title>VineTrack Pro — Professional Winemaking Management</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="assets/css/landing.css">
 </head>
 <body>
-    <header>
-        <h1>Fermentation Log</h1>
-        <button id="toggleOverviewBtn">Show Overview</button>
+    <header class="hero-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="assets/images/logo.svg" alt="VineTrack Pro" class="logo">
+                <span class="logo-title">VineTrack Pro</span>
+            </div>
+            <nav class="main-nav" aria-label="Primary">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#testimonials" class="nav-link">Testimonials</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <a href="enhanced-dashboard.html" class="btn-primary">Launch App</a>
+            </nav>
+        </div>
     </header>
-    <main>
-        <section class="overview hidden">
-            <h2>Overview</h2>
-            <table id="overviewTable">
-                <thead>
-                    <tr>
-                        <th>Tank</th>
-                        <th>Date & Time</th>
-                        <th>Temp (°C)</th>
-                        <th>Sugar (Baumé)</th>
-                        <th>Specific Gravity</th>
-                        <th>pH</th>
-                        <th>TA (g/L)</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="overviewTableBody"></tbody>
-            </table>
-        </section>
-        <section class="quick-insights">
-            <h2>Quick Insights</h2>
-            <div id="insightsContainer" class="insights-grid">
-                <!-- Insights will be dynamically generated here -->
+
+    <section class="hero-section" id="top">
+        <div class="hero-content">
+            <h1>Professional Fermentation Tracking &amp; Winemaking Management</h1>
+            <p class="hero-subtitle">The only OIV-compliant, AI-enhanced platform that unifies cellar operations, compliance, and predictive analytics for modern wineries.</p>
+            <div class="hero-cta">
+                <a href="enhanced-dashboard.html" class="btn-primary btn-large">Start Free Trial</a>
+                <a href="#demo" class="btn-secondary btn-large">Watch Demo</a>
             </div>
-        </section>
-
-        <section class="tank-info">
-            <h2>Select Tank</h2>
-            <div class="info-inputs">
-                <label for="tankSelect">Tank:</label>
-                <select id="tankSelect"></select>
-
-                <label for="grapeVarietyInput">Variety:</label>
-                <input type="text" id="grapeVarietyInput" placeholder="e.g., Chardonnay">
-
-                <p id="tankDetails"></p>
-            </div>
-        </section>
-
-        <section class="data-entry">
-            <h2>New Reading / Addition</h2>
-            <form id="readingForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="timestamp">Date & Time</label>
-                       <input type="text" id="timestamp" required>
+            <div class="hero-visual" aria-hidden="true">
+                <div class="dashboard-preview">
+                    <div class="dashboard-header">
+                        <span class="status-chip success">Healthy Fermentation</span>
+                        <span class="status-chip warning">SO₂ Alert</span>
                     </div>
-                    <div class="form-group">
-                        <label for="temperature">Temperature (°C)</label>
-                        <input type="number" id="temperature" step="0.1" placeholder="e.g., 15.5">
-                    </div>
-                    <div class="form-group">
-                        <label for="brix">Refractometer (°Bx)</label>
-                        <input type="number" id="brix" step="0.1" placeholder="e.g., 20.5">
-                    </div>
-                    <div class="form-group">
-                        <label for="sugar">Sugar (Baumé)</label>
-                        <input type="number" id="sugar" step="0.1" placeholder="e.g., 12.5">
-                        <input type="number" id="sugarGL" placeholder="g/L">
-                    </div>
-                    <div class="form-group">
-                        <label for="sg">Specific Gravity</label>
-                        <input type="number" id="sg" step="0.001" placeholder="e.g., 1.020">
-                    </div>
-                    <div class="form-group">
-                        <label for="ph">pH</label>
-                        <input type="number" id="ph" step="0.01" placeholder="e.g., 3.25">
-                    </div>
-                    <div class="form-group">
-                        <label for="ta">Total Acidity (g/L)</label>
-                        <input type="number" id="ta" step="0.1" placeholder="e.g., 6.8">
-                    </div>
-                    <div class="form-group">
-                        <label for="volume">Volume (L)</label>
-                        <input type="number" id="volume" step="0.1" placeholder="e.g., 1000">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="notes">Additions & Notes</label>
-                        <textarea id="notes" rows="3" placeholder="e.g., Added 50g of Nutrient X"></textarea>
+                    <div class="dashboard-body">
+                        <div class="metric-card">
+                            <p class="metric-label">Avg. Temp</p>
+                            <p class="metric-value">18.6°C</p>
+                        </div>
+                        <div class="metric-card">
+                            <p class="metric-label">Baumé Drop</p>
+                            <p class="metric-value">-0.4</p>
+                        </div>
+                        <div class="metric-card">
+                            <p class="metric-label">Completion Forecast</p>
+                            <p class="metric-value">3.5 days</p>
+                        </div>
+                        <div class="sparkline"></div>
                     </div>
                 </div>
-                <button type="submit">Save Reading</button>
-            </form>
-        </section>
-
-        <section class="calculator">
-            <h2>Additive Calculator</h2>
-            <p>Enter the batch volume and dosage rates. For g/hL rates, amount&nbsp;=&nbsp;volume&nbsp;×&nbsp;rate&nbsp;/&nbsp;100. For SO₂ (KMS) in mg/L, amount&nbsp;=&nbsp;volume&nbsp;×&nbsp;rate&nbsp;/&nbsp;1000.</p>
-            <div class="form-group">
-                <label for="calcVolume">Volume (L)</label>
-                <input type="number" id="calcVolume" step="0.1" placeholder="e.g., 1000">
             </div>
-            <table class="calc-table">
-                <thead>
-                    <tr>
-                        <th>Additive</th>
-                        <th>Dosage Rate</th>
-                        <th>Amount (g)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Nutrients (g/hL)</td>
-                        <td><input type="number" id="nutrientRate" step="0.01" placeholder="e.g., 20"></td>
-                        <td><span id="nutrientAmount"></span></td>
-                        <td><button type="button" id="nutrientSave">Save to Log</button></td>
-                    </tr>
-                    <tr>
-                        <td>Enzymes (g/hL)</td>
-                        <td><input type="number" id="enzymeRate" step="0.01" placeholder="e.g., 2"></td>
-                        <td><span id="enzymeAmount"></span></td>
-                        <td><button type="button" id="enzymeSave">Save to Log</button></td>
-                    </tr>
-                    <tr>
-                        <td>SO₂ (KMS) (mg/L)</td>
-                        <td><input type="number" id="kmsRate" step="1" placeholder="e.g., 50"></td>
-                        <td><span id="kmsAmount"></span></td>
-                        <td><button type="button" id="kmsSave">Save to Log</button></td>
-                    </tr>
-                    <tr>
-                        <td>Bentonite</td>
-                        <td>
-                            <input type="number" id="bentoniteRate" step="0.01" placeholder="e.g., 1">
-                            <button type="button" id="bentoniteUnitBtn">g/L</button>
-                        </td>
-                        <td><span id="bentoniteAmount"></span></td>
-                        <td><button type="button" id="bentoniteSave">Save to Log</button></td>
-                    </tr>
-                    <tr>
-                        <td>Tannins (g/hL)</td>
-                        <td><input type="number" id="tanninRate" step="0.01" placeholder="e.g., 5"></td>
-                        <td><span id="tanninAmount"></span></td>
-                        <td><button type="button" id="tanninSave">Save to Log</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+        </div>
+    </section>
 
-        <section class="acid-calculator">
-            <h2>pH Adjustment Calculator</h2>
-            <div class="form-group">
-                <label for="currentPH">Current pH</label>
-                <input type="number" id="currentPH" step="0.01" placeholder="e.g., 3.8">
+    <section id="features" class="features-section">
+        <div class="section-header">
+            <h2>Designed for Professional Winemaking</h2>
+            <p>Expert-built toolset that keeps cellar teams aligned, compliant, and proactive.</p>
+        </div>
+        <div class="features-grid">
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">📊</div>
+                <h3>Real-time Fermentation Monitoring</h3>
+                <p>Track temperature, sugar, pH, and kinetics with automated anomaly detection and predictive forecasts.</p>
+                <ul class="feature-list">
+                    <li>Customisable alerts</li>
+                    <li>AI completion forecasting</li>
+                    <li>Historical trend analysis</li>
+                </ul>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🔍</div>
+                <h3>Full Traceability</h3>
+                <p>Document every movement from vineyard to bottle with audit-ready logs and chain-of-custody reports.</p>
+                <ul class="feature-list">
+                    <li>Wine genealogy tracking</li>
+                    <li>Automatic compliance reports</li>
+                    <li>QR / barcode integration</li>
+                </ul>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🧪</div>
+                <h3>Laboratory Integration</h3>
+                <p>Sync lab assays, flag stability risks, and calculate SO₂ or additions without leaving the dashboard.</p>
+                <ul class="feature-list">
+                    <li>Automated quality scoring</li>
+                    <li>Stability assessment tools</li>
+                    <li>Centralised lab history</li>
+                </ul>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">📈</div>
+                <h3>Business Intelligence</h3>
+                <p>Understand production costs, plan bottlings, and model pricing with data-driven insights.</p>
+                <ul class="feature-list">
+                    <li>Profitability tracking</li>
+                    <li>Production planning</li>
+                    <li>Demand forecasting</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <div class="section-header">
+            <h2>How VineTrack Pro Works</h2>
+            <p>A streamlined workflow that scales from boutique cellars to enterprise wineries.</p>
+        </div>
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Map Your Cellar</h3>
+                <p>Import tanks and barrels or design your layout in minutes with guided templates.</p>
             </div>
-            <div class="form-group">
-                <label for="targetPH">Target pH</label>
-                <input type="number" id="targetPH" step="0.01" placeholder="e.g., 3.4">
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Capture Readings</h3>
+                <p>Use barcode scanning, mobile forms, or integrations to log every measurement instantly.</p>
             </div>
-            <div class="form-group">
-                <label for="phVolume">Volume (L)</label>
-                <input type="number" id="phVolume" step="0.1" placeholder="e.g., 100">
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Monitor &amp; Optimise</h3>
+                <p>AI analytics highlight risks, recommend actions, and forecast completion.</p>
             </div>
-            <button type="button" id="calculatePH">Calculate Acid Addition</button>
-            <div id="phResult"></div>
-        </section>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Report &amp; Trace</h3>
+                <p>Generate compliance, traceability, and production reports ready for regulators and partners.</p>
+            </div>
+        </div>
+    </section>
 
-        <section class="log-display">
-            <h2>Log History for <span id="logTankId">...</span></h2>
-            <table id="logTable">
-                <thead>
-                    <tr>
-                        <th>Date & Time</th>
-                        <th>Temp (°C)</th>
-                        <th>Sugar (Baumé)</th>
-                        <th>Specific Gravity</th>
-                        <th>pH</th>
-                        <th>TA (g/L)</th>
-                        <th>Volume (L)</th>
-                        <th>Notes / Additions</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="logTableBody">
-                    </tbody>
-            </table>
-        </section>
-
-        <section class="data-management">
-            <h2>Data Management</h2>
-            <button id="exportJsonBtn">Export JSON</button>
-            <button id="exportCsvBtn">Export CSV</button>
-            <input type="file" id="importFile" accept=".json,.csv" style="display: none;">
-            <button id="importJsonBtn">Import JSON</button>
-            <button id="importCsvBtn">Import CSV</button>
-        </section>
-
-        <section class="fermentation-analytics">
-            <h2>Fermentation Analytics</h2>
-            <div class="analytics-grid">
-                <div class="chart-container">
-                    <canvas id="fermentationCurveChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="multiParameterChart"></canvas>
+    <section id="compliance" class="compliance-section">
+        <div class="compliance-content">
+            <div class="compliance-text">
+                <h2>OIV &amp; Regulatory Compliance</h2>
+                <p>Stay inspection-ready with validated templates and continuous monitoring against global standards.</p>
+                <ul class="compliance-list">
+                    <li>SO₂, mass balance, and additives ledger</li>
+                    <li>TTB, EU, and export documentation</li>
+                    <li>Digital signatures &amp; audit trails</li>
+                    <li>HACCP and sustainability tracking</li>
+                </ul>
+            </div>
+            <div class="compliance-visual" aria-hidden="true">
+                <div class="compliance-ring ring-one"></div>
+                <div class="compliance-ring ring-two"></div>
+                <div class="compliance-ring ring-three"></div>
+                <div class="compliance-center">
+                    <span>100%</span>
+                    <small>Audit Ready</small>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="alerts-monitoring">
-            <div id="alertsPanel"></div>
-        </section>
+    <section id="testimonials" class="testimonials-section">
+        <div class="section-header">
+            <h2>Trusted by Professional Winemakers</h2>
+            <p>Industry experts rely on VineTrack Pro to run safer, smarter cellars.</p>
+        </div>
+        <div class="testimonials-grid">
+            <article class="testimonial-card">
+                <p class="testimonial-content">“VineTrack Pro has transformed our fermentation monitoring. The AI completion forecasts are spot on and compliance paperwork is automatic.”</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" aria-hidden="true"><span>SC</span></div>
+                    <div>
+                        <strong>Sarah Chen</strong>
+                        <div>Lead Winemaker, Napa Valley Estate</div>
+                    </div>
+                </div>
+            </article>
+            <article class="testimonial-card">
+                <p class="testimonial-content">“Traceability is finally effortless. Customers love receiving a full production story for their allocations.”</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" aria-hidden="true"><span>LR</span></div>
+                    <div>
+                        <strong>Luca Rossi</strong>
+                        <div>Winemaker, Tuscany Vineyards</div>
+                    </div>
+                </div>
+            </article>
+            <article class="testimonial-card">
+                <p class="testimonial-content">“As a family winery, compliance was daunting. VineTrack Pro keeps us aligned with EU and US requirements without extra staff.”</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" aria-hidden="true"><span>EJ</span></div>
+                    <div>
+                        <strong>Emma Johnson</strong>
+                        <div>Owner, Heritage Cellars</div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
 
-        <section class="team-collaboration">
-            <h2>Team Collaboration</h2>
-            <div id="collaborationPanel"></div>
-        </section>
+    <section id="pricing" class="pricing-section">
+        <div class="section-header">
+            <h2>Simple, Transparent Pricing</h2>
+            <p>Flexible plans for every stage of growth. Cancel any time.</p>
+        </div>
+        <div class="pricing-cards">
+            <article class="pricing-card">
+                <h3>Starter</h3>
+                <p class="price">$49<span>/month</span></p>
+                <p class="price-subtitle">Perfect for boutique wineries</p>
+                <ul class="pricing-features">
+                    <li>Up to 10 tanks</li>
+                    <li>Core fermentation tracking</li>
+                    <li>Compliance exports</li>
+                    <li>Email support</li>
+                </ul>
+                <a href="enhanced-dashboard.html" class="btn-primary">Start Trial</a>
+            </article>
+            <article class="pricing-card featured">
+                <div class="featured-label">Most Popular</div>
+                <h3>Professional</h3>
+                <p class="price">$99<span>/month</span></p>
+                <p class="price-subtitle">Everything a production cellar needs</p>
+                <ul class="pricing-features">
+                    <li>Unlimited tanks</li>
+                    <li>Advanced AI analytics</li>
+                    <li>Lab &amp; ERP integrations</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="enhanced-dashboard.html" class="btn-primary">Start Trial</a>
+            </article>
+            <article class="pricing-card">
+                <h3>Enterprise</h3>
+                <p class="price">Custom</p>
+                <p class="price-subtitle">Tailored for multi-site operations</p>
+                <ul class="pricing-features">
+                    <li>Dedicated CSM</li>
+                    <li>Custom integrations</li>
+                    <li>On-site training</li>
+                    <li>Premium SLA</li>
+                </ul>
+                <a href="#contact" class="btn-primary">Request Demo</a>
+            </article>
+        </div>
+    </section>
 
-        <section class="advanced-reporting">
-            <h2>Professional Reporting</h2>
-            <div class="reporting-controls">
-                <label for="reportStartDate">Start Date:</label>
-                <input type="date" id="reportStartDate">
-                
-                <label for="reportEndDate">End Date:</label>
-                <input type="date" id="reportEndDate">
-                
-                <button id="generateReportBtn">Generate Report</button>
-                <button id="exportPDFBtn">Export PDF</button>
+    <section id="demo" class="demo-section">
+        <div class="section-header">
+            <h2>Explore the Dashboard</h2>
+            <p>Preview the interactive control centre and see how insights flow across your cellar.</p>
+        </div>
+        <div class="demo-preview" aria-hidden="true">
+            <div class="demo-card">
+                <h3>Predictive Analytics</h3>
+                <p>AI forecasts fermentation completion and alerts you to deviations.</p>
             </div>
-        </section>
-    </main>
+            <div class="demo-card">
+                <h3>Digital Cellar Map</h3>
+                <p>Understand utilisation at a glance with capacity-aware layout visualisations.</p>
+            </div>
+            <div class="demo-card">
+                <h3>Compliance Centre</h3>
+                <p>Generate ready-to-submit filings and share secure read-only views.</p>
+            </div>
+        </div>
+    </section>
 
-    <!-- External libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <section id="contact" class="contact-section">
+        <div class="contact-container">
+            <div class="contact-content">
+                <h2>Ready to transform your winemaking process?</h2>
+                <p>Join wineries that trust VineTrack Pro for reliable fermentation control and complete traceability.</p>
+                <a href="enhanced-dashboard.html" class="btn-primary btn-large">Start 14-Day Trial</a>
+                <p class="small-text">No credit card required. Cancel any time.</p>
+            </div>
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="winery">Winery Name</label>
+                        <input type="text" id="winery" name="winery" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tanks">Number of Tanks</label>
+                        <select id="tanks" name="tanks">
+                            <option value="1-5">1–5</option>
+                            <option value="6-10">6–10</option>
+                            <option value="11-20">11–20</option>
+                            <option value="21-50">21–50</option>
+                            <option value="50+">50+</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Get Started</button>
+                </form>
+            </div>
+        </div>
+    </section>
 
-    <!-- Application scripts -->
-    <script src="dataManager.js"></script>
-    <script src="calculations.js"></script>
-    <script src="validator.js"></script>
-    <script src="uiManager.js"></script>
-    <script src="visualizations.js"></script>
-    <script src="alertSystem.js"></script>
-    <script src="collaboration.js"></script>
-    <script src="reporting.js"></script>
-    <script src="batchManager.js"></script>
-    <script src="labIntegration.js"></script>
-    <script src="productionPlanner.js"></script>
-    <script src="complianceManager.js"></script>
-    <script src="aiAnalytics.js"></script>
-    <script src="apiIntegration.js"></script>
-    <script src="pwa.js"></script>
-    <script src="app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-  flatpickr("#timestamp", {
-    // This enables the time picker as well as the date picker
-    enableTime: true,
-    // This is the format the server needs
-    dateFormat: "Y-m-d H:i",
-    // This enables the alternate, user-friendly format
-    altInput: true,
-    // This is the format you will see: "day/month/year hour:minute"
-    altFormat: "d/m/Y H:i",
-    placeholder: "dd/mm/yyyy --:--",
-  });
-</script>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-logo">
+                    <img src="assets/images/logo.svg" alt="VineTrack Pro" width="40" height="40">
+                    <h3>VineTrack Pro</h3>
+                </div>
+                <p class="footer-tagline">AI-enhanced, OIV-compliant winemaking management for modern cellars.</p>
+            </div>
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="enhanced-dashboard.html">Dashboard</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="#contact">About</a></li>
+                        <li><a href="#contact">Team</a></li>
+                        <li><a href="#contact">Careers</a></li>
+                        <li><a href="#contact">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#how-it-works">Implementation</a></li>
+                        <li><a href="#demo">Product Tour</a></li>
+                        <li><a href="#contact">Support</a></li>
+                        <li><a href="#contact">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@vinetrackpro.com">support@vinetrackpro.com</a></li>
+                        <li><a href="tel:+18001234567">+1 (800) 123-4567</a></li>
+                        <li><a href="#contact">Sales Inquiries</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="year"></span> VineTrack Pro. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="https://twitter.com" aria-label="Twitter">Twitter</a>
+                    <a href="https://linkedin.com" aria-label="LinkedIn">LinkedIn</a>
+                    <a href="https://instagram.com" aria-label="Instagram">Instagram</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const contactForm = document.getElementById('contactForm');
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(contactForm);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const winery = formData.get('winery');
+            alert(`Thank you, ${name}! Our team will reach out to ${email} about ${winery}.`);
+            contactForm.reset();
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener('click', (event) => {
+                const targetId = anchor.getAttribute('href');
+                if (targetId.length > 1) {
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        event.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = Array.from(document.querySelectorAll('section[id]'));
+        const setActiveNav = () => {
+            const scrollPosition = window.scrollY + 120;
+            let currentId = sections[0]?.id;
+            sections.forEach((section) => {
+                if (scrollPosition >= section.offsetTop) {
+                    currentId = section.id;
+                }
+            });
+            navLinks.forEach((link) => {
+                const linkTarget = link.getAttribute('href').replace('#', '');
+                if (linkTarget && linkTarget === currentId) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', setActiveNav);
+        window.addEventListener('load', () => {
+            setActiveNav();
+            document.getElementById('year').textContent = new Date().getFullYear();
+        });
+    </script>
 </body>
 </html>
