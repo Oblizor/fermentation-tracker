@@ -96,6 +96,30 @@ class DataManager {
     constructor() {
         this.cache = new Map();
         this.subscribers = [];
+        this.memoryStore = new Map();
+        this.memoryVariety = new Map();
+        this.storageAvailable = this.checkStorageAvailability();
+    }
+
+    checkStorageAvailability() {
+        if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+            return false;
+        }
+        try {
+            const testKey = '__vinetrack_storage_test__';
+            window.localStorage.setItem(testKey, '1');
+            window.localStorage.removeItem(testKey);
+            return true;
+        } catch (error) {
+            console.warn('Local storage unavailable, using in-memory persistence only.', error);
+            return false;
+        }
+    }
+
+    useMemoryStore(tankId, data) {
+        const clone = Array.isArray(data) ? data.map(entry => ({ ...entry })) : [];
+        this.memoryStore.set(tankId, clone);
+        return clone;
     }
 
     normalizeReading(entry) {
@@ -118,22 +142,49 @@ class DataManager {
         if (this.cache.has(tankId)) {
             return this.cache.get(tankId);
         }
-        
-        const data = localStorage.getItem(tankId);
-        const parsed = data ? JSON.parse(data) : [];
-        this.cache.set(tankId, parsed);
-        return parsed;
+
+        let parsed = [];
+        if (this.storageAvailable) {
+            try {
+                const stored = window.localStorage.getItem(tankId);
+                parsed = stored ? JSON.parse(stored) : [];
+            } catch (error) {
+                console.warn('Failed to read from local storage, falling back to in-memory data.', error);
+                this.storageAvailable = false;
+                parsed = this.memoryStore.get(tankId) ?? [];
+            }
+        } else {
+            parsed = this.memoryStore.get(tankId) ?? [];
+        }
+
+        const clone = parsed.map(entry => ({ ...entry }));
+        this.cache.set(tankId, clone);
+        return clone;
     }
 
     saveTankData(tankId, data) {
         // Sort by timestamp (newest first) before saving
-        const sorted = [...data].sort((a, b) => 
+        const sorted = [...data].sort((a, b) =>
             new Date(b.timestamp) - new Date(a.timestamp)
         );
-        
-        localStorage.setItem(tankId, JSON.stringify(sorted));
-        this.cache.set(tankId, sorted);
-        this.notifyChange(tankId, sorted);
+
+        if (this.storageAvailable) {
+            try {
+                window.localStorage.setItem(tankId, JSON.stringify(sorted));
+            } catch (error) {
+                console.warn('Persisting to local storage failed. Continuing with in-memory cache.', error);
+                this.storageAvailable = false;
+                this.useMemoryStore(tankId, sorted);
+            }
+        }
+
+        if (!this.storageAvailable) {
+            this.useMemoryStore(tankId, sorted);
+        }
+
+        const snapshot = sorted.map(entry => ({ ...entry }));
+        this.cache.set(tankId, snapshot);
+        this.notifyChange(tankId, snapshot);
     }
 
     addReading(tankId, reading) {
@@ -254,14 +305,37 @@ class DataManager {
 
     // Tank variety management
     getTankVariety(tankId) {
-        return localStorage.getItem(tankId + '_variety') || '';
+        if (this.storageAvailable) {
+            try {
+                return window.localStorage.getItem(`${tankId}_variety`) || '';
+            } catch (error) {
+                console.warn('Reading tank variety from local storage failed, reverting to memory cache.', error);
+                this.storageAvailable = false;
+            }
+        }
+        return this.memoryVariety.get(tankId) || '';
     }
 
     setTankVariety(tankId, variety) {
+        if (this.storageAvailable) {
+            try {
+                if (variety) {
+                    window.localStorage.setItem(`${tankId}_variety`, variety);
+                } else {
+                    window.localStorage.removeItem(`${tankId}_variety`);
+                }
+                this.memoryVariety.delete(tankId);
+                return;
+            } catch (error) {
+                console.warn('Persisting tank variety failed. Using in-memory fallback.', error);
+                this.storageAvailable = false;
+            }
+        }
+
         if (variety) {
-            localStorage.setItem(tankId + '_variety', variety);
+            this.memoryVariety.set(tankId, variety);
         } else {
-            localStorage.removeItem(tankId + '_variety');
+            this.memoryVariety.delete(tankId);
         }
     }
 }
