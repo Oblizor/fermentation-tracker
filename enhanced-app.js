@@ -32,6 +32,7 @@ class EnhancedDashboardApp {
         this.populateQuickAddSelector();
         this.bindNavigation();
         this.bindQuickAddForm();
+        this.bindHeaderActions();
         this.bindHarvestWorkflowForm();
         this.bindWorkflowActionHandlers();
         this.bindNotificationPanel();
@@ -67,6 +68,75 @@ class EnhancedDashboardApp {
             option.textContent = `${tank.id} (${tank.capacity} L)`;
             select.appendChild(option);
         });
+    }
+
+    bindHeaderActions() {
+        const quickAddButton = document.querySelector('[data-action="quick-add"]');
+        if (quickAddButton) {
+            quickAddButton.addEventListener('click', () => {
+                this.quickAdd();
+            });
+        }
+
+        const scanButton = document.querySelector('[data-action="open-scanner"]');
+        if (scanButton) {
+            scanButton.addEventListener('click', () => {
+                this.openScannerModal();
+            });
+        }
+
+        const toggleNotificationsButton = document.querySelector('[data-action="toggle-notifications"]');
+        if (toggleNotificationsButton) {
+            toggleNotificationsButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                this.toggleNotifications();
+            });
+        }
+
+        const closeNotificationsButton = document.querySelector('[data-action="close-notifications"]');
+        if (closeNotificationsButton) {
+            closeNotificationsButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                this.toggleNotifications(false);
+            });
+        }
+
+        const quickAddModal = document.getElementById('quickAddModal');
+        if (quickAddModal) {
+            quickAddModal.addEventListener('click', (event) => {
+                if (event.target === quickAddModal) {
+                    this.closeModal();
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-action="close-modal"]').forEach(button => {
+            button.addEventListener('click', () => {
+                this.closeModal();
+            });
+        });
+
+        const scannerModal = document.getElementById('scannerModal');
+        if (scannerModal) {
+            scannerModal.addEventListener('click', (event) => {
+                if (event.target === scannerModal) {
+                    this.closeScanner();
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-action="close-scanner"]').forEach(button => {
+            button.addEventListener('click', () => {
+                this.closeScanner();
+            });
+        });
+
+        const toggle3DButton = document.querySelector('[data-action="toggle-3d"]');
+        if (toggle3DButton) {
+            toggle3DButton.addEventListener('click', () => {
+                this.toggleCellarViewMode();
+            });
+        }
     }
 
     bindNavigation() {

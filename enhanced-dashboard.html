@@ -32,9 +32,9 @@
                     <button class="btn-search" type="button" aria-label="Search">🔍</button>
                 </div>
                 <div class="quick-actions">
-                    <button class="btn-scan" type="button" onclick="openBarcodeScanner()">📷 Scan</button>
-                    <button class="btn-add-reading" type="button" onclick="quickAddReading()">➕ Quick Add</button>
-                    <button class="btn-notifications" type="button" onclick="toggleNotifications(event)" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn-scan" type="button" data-action="open-scanner">📷 Scan</button>
+                    <button class="btn-add-reading" type="button" data-action="quick-add">➕ Quick Add</button>
+                    <button class="btn-notifications" type="button" data-action="toggle-notifications" aria-haspopup="true" aria-expanded="false">
                         🔔 <span class="badge" aria-live="polite">0</span>
                     </button>
                 </div>
@@ -45,7 +45,7 @@
                 <div id="notificationPanel" class="notification-panel glass-card" aria-hidden="true">
                     <div class="panel-header">
                         <h3>Notifications</h3>
-                        <button type="button" class="panel-close" onclick="toggleNotifications(event)" aria-label="Close notifications">✕</button>
+                        <button type="button" class="panel-close" data-action="close-notifications" aria-label="Close notifications">✕</button>
                     </div>
                     <ul id="notificationList" class="notification-list"></ul>
                 </div>
@@ -97,7 +97,7 @@
                                 <option value="variety">By Variety</option>
                                 <option value="temperature">By Temperature</option>
                             </select>
-                            <button type="button" data-action="toggle-3d" onclick="toggleCellar3D()" aria-pressed="false">3D View</button>
+                            <button type="button" data-action="toggle-3d" aria-pressed="false">3D View</button>
                         </div>
                         <div id="cellarVisualization"></div>
                     </section>
@@ -276,7 +276,7 @@
                 <input type="number" id="quickPH" placeholder="pH" step="0.01">
                 <div class="modal-actions">
                     <button type="submit">Save</button>
-                    <button type="button" onclick="closeModal()">Cancel</button>
+                    <button type="button" data-action="close-modal">Cancel</button>
                 </div>
             </form>
         </div>
@@ -287,7 +287,7 @@
             <h2 id="scannerTitle" class="visually-hidden">Barcode scanner</h2>
             <video id="scannerVideo" autoplay muted playsinline></video>
             <div id="scanResult"></div>
-            <button type="button" onclick="closeScannerModal()">Close</button>
+            <button type="button" data-action="close-scanner">Close</button>
         </div>
     </div>
 
