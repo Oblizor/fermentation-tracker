@@ -15,124 +15,213 @@
                 <h2>VineTrack Pro</h2>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item active"><span>Dashboard</span></li>
-                <li class="nav-item"><span>Tanks</span></li>
-                <li class="nav-item"><span>Batches</span></li>
-                <li class="nav-item"><span>Laboratory</span></li>
-                <li class="nav-item"><span>Production</span></li>
-                <li class="nav-item"><span>Analytics</span></li>
-                <li class="nav-item"><span>Settings</span></li>
+                <li><button type="button" class="nav-item active" data-view="dashboard" aria-controls="view-dashboard" aria-current="page">Dashboard</button></li>
+                <li><button type="button" class="nav-item" data-view="tanks" aria-controls="view-tanks">Tanks</button></li>
+                <li><button type="button" class="nav-item" data-view="batches" aria-controls="view-batches">Batches</button></li>
+                <li><button type="button" class="nav-item" data-view="laboratory" aria-controls="view-laboratory">Laboratory</button></li>
+                <li><button type="button" class="nav-item" data-view="production" aria-controls="view-production">Production</button></li>
+                <li><button type="button" class="nav-item" data-view="analytics" aria-controls="view-analytics">Analytics</button></li>
+                <li><button type="button" class="nav-item" data-view="settings" aria-controls="view-settings">Settings</button></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <header class="dashboard-header glass-card">
                 <div class="search-bar">
-                    <input type="text" placeholder="Search batches, tanks, or wines...">
-                    <button class="btn-search">🔍</button>
+                    <input type="text" placeholder="Search batches, tanks, or wines..." aria-label="Search batches, tanks, or wines">
+                    <button class="btn-search" type="button" aria-label="Search">🔍</button>
                 </div>
                 <div class="quick-actions">
-                    <button class="btn-scan" onclick="openBarcodeScanner()">📷 Scan</button>
-                    <button class="btn-add-reading" onclick="quickAddReading()">➕ Quick Add</button>
-                    <button class="btn-notifications">🔔 <span class="badge">3</span></button>
+                    <button class="btn-scan" type="button" onclick="openBarcodeScanner()">📷 Scan</button>
+                    <button class="btn-add-reading" type="button" onclick="quickAddReading()">➕ Quick Add</button>
+                    <button class="btn-notifications" type="button" onclick="toggleNotifications(event)" aria-haspopup="true" aria-expanded="false">
+                        🔔 <span class="badge" aria-live="polite">0</span>
+                    </button>
                 </div>
                 <div class="user-profile">
                     <img src="user-avatar.jpg" alt="User" width="48" height="48">
                     <span>Winemaker</span>
                 </div>
+                <div id="notificationPanel" class="notification-panel glass-card" aria-hidden="true">
+                    <div class="panel-header">
+                        <h3>Notifications</h3>
+                        <button type="button" class="panel-close" onclick="toggleNotifications(event)" aria-label="Close notifications">✕</button>
+                    </div>
+                    <ul id="notificationList" class="notification-list"></ul>
+                </div>
             </header>
 
-            <div class="kpi-grid">
-                <div class="kpi-card glass-card">
-                    <div class="kpi-icon">🍇</div>
-                    <div class="kpi-content">
-                        <h3>Active Fermentations</h3>
-                        <p class="kpi-value" id="kpiFermentations">0</p>
-                        <span class="kpi-trend positive" id="kpiFermentationTrend"></span>
+            <div class="view-container">
+                <section class="view-panel active" data-view="dashboard" id="view-dashboard" aria-label="Dashboard overview" aria-hidden="false">
+                    <div class="kpi-grid">
+                        <div class="kpi-card glass-card">
+                            <div class="kpi-icon">🍇</div>
+                            <div class="kpi-content">
+                                <h3>Active Fermentations</h3>
+                                <p class="kpi-value" id="kpiFermentations">0</p>
+                                <span class="kpi-trend positive" id="kpiFermentationTrend"></span>
+                            </div>
+                        </div>
+                        <div class="kpi-card glass-card">
+                            <div class="kpi-icon">🏺</div>
+                            <div class="kpi-content">
+                                <h3>Total Volume</h3>
+                                <p class="kpi-value" id="kpiVolume">0 L</p>
+                                <span class="kpi-trend" id="kpiCapacity"></span>
+                            </div>
+                        </div>
+                        <div class="kpi-card glass-card">
+                            <div class="kpi-icon">⚗️</div>
+                            <div class="kpi-content">
+                                <h3>Lab Samples Today</h3>
+                                <p class="kpi-value" id="kpiLabSamples">0</p>
+                                <span class="kpi-trend" id="kpiLabPending"></span>
+                            </div>
+                        </div>
+                        <div class="kpi-card glass-card">
+                            <div class="kpi-icon">📊</div>
+                            <div class="kpi-content">
+                                <h3>Quality Score</h3>
+                                <p class="kpi-value" id="kpiQuality">0</p>
+                                <span class="kpi-trend positive" id="kpiQualityTrend"></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="kpi-card glass-card">
-                    <div class="kpi-icon">🏺</div>
-                    <div class="kpi-content">
-                        <h3>Total Volume</h3>
-                        <p class="kpi-value" id="kpiVolume">0 L</p>
-                        <span class="kpi-trend" id="kpiCapacity"></span>
+
+                    <section class="cellar-map glass-card">
+                        <h2>Cellar Overview</h2>
+                        <div class="cellar-controls">
+                            <label for="cellarView" class="visually-hidden">Cellar view mode</label>
+                            <select id="cellarView">
+                                <option value="status">By Status</option>
+                                <option value="variety">By Variety</option>
+                                <option value="temperature">By Temperature</option>
+                            </select>
+                            <button type="button" data-action="toggle-3d" onclick="toggleCellar3D()" aria-pressed="false">3D View</button>
+                        </div>
+                        <div id="cellarVisualization"></div>
+                    </section>
+
+                    <section class="monitoring-grid">
+                        <div class="monitor-card glass-card">
+                            <h3>Temperature Monitoring</h3>
+                            <canvas id="tempMonitorChart" aria-label="Tank temperature trends" role="img"></canvas>
+                        </div>
+                        <div class="monitor-card glass-card">
+                            <h3>Fermentation Progress</h3>
+                            <div id="fermentationProgress"></div>
+                        </div>
+                        <div class="monitor-card glass-card">
+                            <h3>Recent Activities</h3>
+                            <div class="activity-feed" id="activityFeed"></div>
+                        </div>
+                    </section>
+
+                    <section class="batch-timeline-section glass-card">
+                        <h2>Production Timeline</h2>
+                        <div class="batch-timeline" id="productionTimeline">
+                            <div class="timeline-line"></div>
+                        </div>
+                    </section>
+                </section>
+
+                <section class="view-panel" data-view="tanks" id="view-tanks" aria-label="Tank overview" aria-hidden="true">
+                    <div class="panel-header">
+                        <h2>Tank Overview</h2>
+                        <p>Monitor cellar capacity, assignments, and the freshness of your readings.</p>
                     </div>
-                </div>
-                <div class="kpi-card glass-card">
-                    <div class="kpi-icon">⚗️</div>
-                    <div class="kpi-content">
-                        <h3>Lab Samples Today</h3>
-                        <p class="kpi-value" id="kpiLabSamples">0</p>
-                        <span class="kpi-trend" id="kpiLabPending"></span>
+                    <div id="tankOverviewList" class="list-grid"></div>
+                    <div id="tanksEmptyState" class="empty-state glass-card" hidden>
+                        <h3>No tanks configured yet</h3>
+                        <p>Import your cellar layout or use Quick Add to start tracking fermentation vessels.</p>
                     </div>
-                </div>
-                <div class="kpi-card glass-card">
-                    <div class="kpi-icon">📊</div>
-                    <div class="kpi-content">
-                        <h3>Quality Score</h3>
-                        <p class="kpi-value" id="kpiQuality">0</p>
-                        <span class="kpi-trend positive" id="kpiQualityTrend"></span>
+                </section>
+
+                <section class="view-panel" data-view="batches" id="view-batches" aria-label="Batch management" aria-hidden="true">
+                    <div class="panel-header">
+                        <h2>Batch Management</h2>
+                        <p>Track varietals, volumes, and statuses across your cellar.</p>
                     </div>
-                </div>
+                    <div id="batchOverviewList" class="list-grid"></div>
+                    <div id="batchesEmptyState" class="empty-state glass-card" hidden>
+                        <h3>No batches recorded</h3>
+                        <p>Create a batch from a tank to begin capturing fermentation history.</p>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view="laboratory" id="view-laboratory" aria-label="Laboratory results" aria-hidden="true">
+                    <div class="panel-header">
+                        <h2>Laboratory Results</h2>
+                        <p>Review the latest chemistry and quality metrics from your lab team.</p>
+                    </div>
+                    <div id="labResultsList" class="list-grid"></div>
+                    <div id="labEmptyState" class="empty-state glass-card" hidden>
+                        <h3>No lab results yet</h3>
+                        <p>When you add analyses to a batch, the most recent measurements will appear here.</p>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view="production" id="view-production" aria-label="Production schedule" aria-hidden="true">
+                    <div class="panel-header">
+                        <h2>Production Planning</h2>
+                        <p>Coordinate harvest, fermentation, aging, and bottling activities.</p>
+                    </div>
+                    <div id="productionSchedule" class="timeline-grid"></div>
+                    <div id="productionEmptyState" class="empty-state glass-card" hidden>
+                        <h3>No production plan available</h3>
+                        <p>Set your vintage to generate a timeline with resource utilization insights.</p>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view="analytics" id="view-analytics" aria-label="Analytics" aria-hidden="true">
+                    <div class="panel-header">
+                        <h2>AI Analytics</h2>
+                        <p>Forecast fermentation completion dates and identify potential risks.</p>
+                    </div>
+                    <div id="analyticsSummary" class="list-grid analytics-grid"></div>
+                    <div id="analyticsEmptyState" class="empty-state glass-card" hidden>
+                        <h3>Analytics will appear here</h3>
+                        <p>Add readings to your tanks to unlock AI-powered fermentation forecasts.</p>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view="settings" id="view-settings" aria-label="System settings" aria-hidden="true">
+                    <div class="panel-header">
+                        <h2>System Settings</h2>
+                        <p>Review connectivity, integrations, and AI readiness for your winery.</p>
+                    </div>
+                    <div id="settingsPanel" class="settings-grid"></div>
+                </section>
             </div>
-
-            <section class="cellar-map glass-card">
-                <h2>Cellar Overview</h2>
-                <div class="cellar-controls">
-                    <select id="cellarView">
-                        <option value="status">By Status</option>
-                        <option value="variety">By Variety</option>
-                        <option value="temperature">By Temperature</option>
-                    </select>
-                    <button onclick="toggleCellar3D()">3D View</button>
-                </div>
-                <div id="cellarVisualization"></div>
-            </section>
-
-            <section class="monitoring-grid">
-                <div class="monitor-card glass-card">
-                    <h3>Temperature Monitoring</h3>
-                    <canvas id="tempMonitorChart"></canvas>
-                </div>
-                <div class="monitor-card glass-card">
-                    <h3>Fermentation Progress</h3>
-                    <div id="fermentationProgress"></div>
-                </div>
-                <div class="monitor-card glass-card">
-                    <h3>Recent Activities</h3>
-                    <div class="activity-feed" id="activityFeed"></div>
-                </div>
-            </section>
-
-            <section class="batch-timeline-section glass-card">
-                <h2>Production Timeline</h2>
-                <div class="batch-timeline" id="productionTimeline">
-                    <div class="timeline-line"></div>
-                </div>
-            </section>
         </main>
     </div>
 
-    <div id="quickAddModal" class="modal">
+    <div id="quickAddModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
         <div class="modal-content glass-card">
-            <h2>Quick Reading</h2>
+            <h2 id="quickAddTitle">Quick Reading</h2>
             <form id="quickReadingForm">
+                <label for="quickTank" class="visually-hidden">Tank</label>
                 <select id="quickTank" required></select>
+                <label for="quickTemp" class="visually-hidden">Temperature</label>
                 <input type="number" id="quickTemp" placeholder="Temperature (°C)" step="0.1">
+                <label for="quickSugar" class="visually-hidden">Sugar</label>
                 <input type="number" id="quickSugar" placeholder="Sugar (Baumé)" step="0.1">
+                <label for="quickPH" class="visually-hidden">pH</label>
                 <input type="number" id="quickPH" placeholder="pH" step="0.01">
-                <button type="submit">Save</button>
-                <button type="button" onclick="closeModal()">Cancel</button>
+                <div class="modal-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="closeModal()">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div id="scannerModal" class="modal">
+    <div id="scannerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="scannerTitle">
         <div class="modal-content">
+            <h2 id="scannerTitle" class="visually-hidden">Barcode scanner</h2>
             <video id="scannerVideo" autoplay muted playsinline></video>
             <div id="scanResult"></div>
-            <button onclick="closeScannerModal()">Close</button>
+            <button type="button" onclick="closeScannerModal()">Close</button>
         </div>
     </div>
 
